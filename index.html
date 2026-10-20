@@ -14,142 +14,103 @@
             --coral: #e07a5f;
             --card-bg: #ffffff;
             --border: #d3d3d3;
-            --success: #2e7d32;
-            --error: #c62828;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #eef2f3; color: var(--dark); line-height: 1.6; padding: 20px; }
+        body { background-color: var(--light); color: var(--dark); line-height: 1.6; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--light); padding-bottom: 15px; }
+        header h1 { color: var(--primary); font-size: 24px; margin-bottom: 5px; }
+        header p { color: #666; font-size: 14px; }
         
-        .container { max-width: 1000px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-        
-        header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 20px; }
-        header h1 { color: var(--primary); font-size: 28px; margin-bottom: 6px; font-weight: 700; }
-        header p { color: #555; font-size: 15px; }
-
         .setup-screen, .game-screen, .end-screen { display: none; }
         .active-screen { display: block; }
 
-        /* Form Controls */
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--primary); }
-        select, input { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; transition: border-color 0.2s; }
-        select:focus, input:focus { border-color: var(--secondary); outline: none; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--primary); }
+        select, input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 16px; }
+        .btn { background-color: var(--secondary); color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; transition: background 0.2s; margin-top: 10px; }
+        .btn:hover { background-color: var(--primary); }
+
+        .dashboard { display: flex; justify-content: space-between; background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: bold; border-left: 5px solid var(--accent); }
+        .board-track { display: flex; overflow-x: auto; gap: 10px; padding: 10px 0; margin-bottom: 20px; scrollbar-width: thin; }
+        .board-node { min-width: 100px; height: 70px; background: #e9ecef; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid transparent; text-align: center; padding: 5px; flex-shrink: 0; }
+        .board-node.active { background: var(--accent); color: white; border-color: var(--primary); transform: scale(1.05); }
+        .board-node.completed { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+
+        .card-container { background: #fff; border: 2px solid var(--secondary); border-radius: 10px; padding: 25px; box-shadow: 0 6px 12px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; }
+        .card-badge { position: absolute; top: -12px; left: 20px; background: var(--coral); color: white; padding: 3px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; text-transform: uppercase; }
+        .card-title { font-size: 18px; color: var(--primary); margin-top: 10px; margin-bottom: 15px; font-weight: bold; }
+        .card-question { font-size: 16px; margin-bottom: 20px; }
         
-        .btn { background-color: var(--secondary); color: white; border: none; padding: 14px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: 700; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn:hover { background-color: var(--primary); transform: translateY(-1px); }
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { background: var(--light); border: 1px solid var(--border); padding: 12px 15px; text-align: left; border-radius: 6px; cursor: pointer; font-size: 15px; transition: all 0.2s; }
+        .option-btn.hover:not(:disabled) { background: #e2e8f0; border-color: var(--secondary); }
+        .option-btn.correct { background: #d4edda !important; border-color: #28a745 !important; color: #155724; font-weight: bold; }
+        .option-btn.incorrect { background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24; }
 
-        /* Dashboard & HUD */
-        .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; }
-        .hud-item h4 { font-size: 12px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
-        .hud-item div { font-size: 20px; font-weight: 700; margin-top: 4px; }
+        .feedback-box { margin-top: 20px; padding: 15px; border-radius: 6px; font-size: 14px; display: none; }
+        .feedback-box.show { display: block; }
+        .feedback-box.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback-box.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* Interactive Board (Stations Track) */
-        .track-container { margin-bottom: 30px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .track-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .board-track { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: thin; }
-        
-        .station-node { min-width: 130px; background: white; border: 2px solid #cbd5e1; border-radius: 10px; padding: 12px 10px; text-align: center; transition: all 0.3s ease; position: relative; }
-        .station-node .number { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; }
-        .station-node .name { font-size: 13px; font-weight: 600; color: var(--dark); margin-top: 4px; }
-        
-        .station-node.active { border-color: var(--coral); background: #fff5f2; transform: scale(1.04); box-shadow: 0 4px 12px rgba(224, 122, 95, 0.2); }
-        .station-node.active .number { color: var(--coral); }
-        .station-node.completed { border-color: #81c784; background: #f1f8e9; }
-        .station-node.completed .number { color: var(--success); }
-
-        /* Card Engine UI */
-        .card-container { background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); position: relative; }
-        .card-badge { display: inline-block; background: var(--coral); color: white; padding: 4px 14px; font-size: 12px; font-weight: 700; border-radius: 20px; text-transform: uppercase; margin-bottom: 15px; }
-        .card-title { font-size: 22px; color: var(--primary); margin-bottom: 15px; font-weight: 700; }
-        .card-question { font-size: 17px; margin-bottom: 25px; color: #334155; }
-        
-        .options-list { display: flex; flex-direction: column; gap: 12px; }
-        .option-btn { background: #f8fafc; border: 2px solid #e2e8f0; padding: 16px 20px; text-align: left; border-radius: 10px; cursor: pointer; font-size: 15px; transition: all 0.2s ease; color: #334155; font-weight: 500; }
-        .option-btn:hover:not(:disabled) { background: #f1f5f9; border-color: var(--accent); transform: translateX(3px); }
-        .option-btn.correct { background: #e8f5e9 !important; border-color: #4caf50 !important; color: #1b5e20 !important; font-weight: 700; }
-        .option-btn.incorrect { background: #ffebee !important; border-color: #ef5350 !important; color: #b71c1c !important; }
-
-        .feedback-box { margin-top: 25px; padding: 20px; border-radius: 10px; font-size: 15px; display: none; line-height: 1.6; }
-        .feedback-box.show { display: block; animation: fadeIn 0.3s ease; }
-        .feedback-box.success { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
-        .feedback-box.error { background: #ffebee; color: #b71c1c; border: 1px solid #ef9a9a; }
-
-        .next-btn { margin-top: 20px; display: none; background: var(--primary); }
-
-        /* End Analytics */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 30px 0; }
-        .stat-card { background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
-        .stat-card h3 { font-size: 32px; color: var(--primary); font-weight: 800; }
-        .stat-card p { font-size: 14px; color: #64748b; font-weight: 600; margin-top: 5px; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .next-btn { margin-top: 15px; display: none; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; text-align: center; }
+        .stat-card { background: var(--light); padding: 15px; border-radius: 8px; }
+        .stat-card h3 { font-size: 22px; color: var(--primary); }
+        .stat-card p { font-size: 13px; color: #666; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Lov-Navigatoren</h1>
-        <p>Praksisnært spil om folkeskolelovgivningen for Ilinniartitaanermut Aqutsisoqarfik (ILA)</p>
+        <h1>Folkeskolelov-navigator</h1>
+        <p>Spil om ILA for ILA-ansatte</p>
     </header>
 
     <!-- SETUP SCREEN -->
     <div id="setupScreen" class="setup-screen active-screen">
         <div class="form-group">
-            <label for="playerName">Holdnavn / Konsulentnavn:</label>
-            <input type="text" id="playerName" value="Team ILA / Konsulent">
+            <label for="playerName">Holdnavn / Deltagernavn:</label>
+            <input type="text" id="playerName" value="Team Siammaavik / Konsulent">
         </div>
         <div class="form-group">
-            <label for="spilMode">Spilforløb:</label>
-            <select id="spilMode">
-                <option value="full">15 Stationer: Det Store Udvidede Lovforløb</option>
+            <label for="gameMode">Spiltilstand:</label>
+            <select id="gameMode">
+                <option value="all">Samlet Forløb: Alle 15 Stationer</option>
             </select>
         </div>
-        <button class="btn" onclick="startGame()">Start Rejsen gennem de 15 Stationer</button>
+        <button class="btn" onclick="startGame()">Start Rejsen</button>
     </div>
 
     <!-- GAME SCREEN -->
     <div id="gameScreen" class="game-screen">
         <div class="dashboard">
-            <div class="hud-item">
-                <h4>Deltager / Hold</h4>
-                <div id="hudPlayer">Team 1</div>
-            </div>
-            <div class="hud-item">
-                <h4>Nuværende Station</h4>
-                <div id="hudStation">Station 1 af 15</div>
-            </div>
-            <div class="hud-item">
-                <h4>Faglig Kapital</h4>
-                <div id="hudScore">0 point</div>
-            </div>
+            <div id="hudPlayer">Spiller: Hold 1</div>
+            <div id="hudStation">Station 1 af 15</div>
+            <div id="hudScore">Faglig Kapital: 0 point</div>
         </div>
 
-        <div class="track-container">
-            <div class="track-title">Spilleplade: Ruten gennem de 15 Stationer</div>
-            <div class="board-track" id="boardTrack">
-                <!-- Dynamisk genererede stationer -->
-            </div>
+        <div class="board-track" id="boardTrack">
+            <!-- Dynamisk genererede stationer -->
         </div>
 
         <div class="card-container">
             <div class="card-badge" id="cardCategory">Kategori</div>
-            <div class="card-title" id="cardTitle">Stationstitel</div>
-            <div class="card-question" id="cardQuestion">Her vises casen/spørgsmålet...</div>
+            <div class="card-title" id="cardTitle">Sagsoverskrift</div>
+            <div class="card-question" id="cardQuestion">Her vises spørgsmålet...</div>
             <div class="options-list" id="optionsList">
                 <!-- Svarmuligheder -->
             </div>
             <div class="feedback-box" id="feedbackBox"></div>
-            <button class="btn next-btn" id="nextBtn" onclick="nextStation()">Ryk videre til næste station</button>
+            <button class="btn next-btn" id="nextBtn" onclick="nextStation()">Næste Station</button>
         </div>
     </div>
 
     <!-- END SCREEN -->
     <div id="endScreen" class="end-screen">
-        <h2 style="color: var(--primary); font-size: 26px; text-align: center;">Alle 15 Stationer Gennemført!</h2>
-        <p style="text-align: center; color: #555; margin-top: 10px;">Imponerende! Du har navigeret igennem samtlige 15 stationer og bevist stærkt kendskab til både interne styrelsesforhold og komplekse bekendtgørelser.</p>
-        
+        <h2>Spillet er gennemført!</h2>
+        <p style="margin: 15px 0;">Du har navigeret igennem samtlige 15 stationer og demonstreret stærkt kendskab til lovgivning, bekendtgørelser og styrelsens praksis[cite: 4, 6, 28, 35].</p>
         <div class="stats-grid">
             <div class="stat-card">
                 <h3 id="finalScore">0</h3>
@@ -164,43 +125,42 @@
                 <p>Lov-Niveau</p>
             </div>
         </div>
-        <button class="btn" onclick="resetGame()">Tag en ny tur på ruten</button>
+        <button class="btn" onclick="resetGame()">Spil igen</button>
     </div>
 </div>
 
 <script>
-    // Udvidet forløb med 15 stationer
     const stationsData = [
         {
-            stationName: "1. Onboarding",
+            stationName: "Station 1",
             category: "Lovgrundlag & Onboarding",
-            title: "Station 1: Nyansatte og lovkendskab",
+            title: "Nyansatte og lovkendskab",
             question: "Undersøgelser viser, at især nyansatte med 1-3 års anciennitet efterspørger dybere indsigt i lovgivningen[cite: 10]. Hvad er den anbefalede onboarding-løsning?",
             options: [
-                "At overlade al oplæring til uformelle samtaler i teamet.",
+                "At overlade al oplæring til tilfældige samtaler i teamet.",
                 "At indføre en fast, afdelingsspecifik onboarding-procedure med en struktureret introduktion til lovfeltet tidligt i forløbet[cite: 10, 21].",
-                "At forvente, at medarbejderne selv læser loven uden introduktion."
+                "At forvente, at medarbejderne selv læser loven uden hjælp."
             ],
             correct: 1,
             explanation: "En formaliseret afdelingsspecifik onboarding med et fast lovmodul sikrer tryghed og kendskab til rammerne[cite: 10, 21]."
         },
         {
-            stationName: "2. § 37-Hastesager",
-            category: "Politisk Styring & Hasteopgaver",
-            title: "Station 2: Akut politisk forespørgsel",
+            stationName: "Station 2",
+            category: "Politisk Styring",
+            title: "Akut politisk forespørgsel",
             question: "Departementet sender en hasteforespørgsel om specialundervisningsressourcer fredag eftermiddag med svarfrist mandag[cite: 4]. Hvad er den korrekte praksis?",
             options: [
                 "At besvare forespørgslen prompte ved at inddrage specialiseret fagviden på tværs af teams[cite: 4, 11].",
-                "At ignorere den, indtil den almindelige arbejdsuge starter.",
-                "At sende sagen til kommunen uden intern koordinering."
+                "At afvise opgaven indtil mandag formiddag.",
+                "At videresende sagen til kommunen uden intern koordinering."
             ],
             correct: 0,
             explanation: "Hasteopgaver af politisk karakter kræver hurtig leverancesikkerhed og tværfaglig inddragelse[cite: 4, 11]."
         },
         {
-            stationName: "3. Silo-nedbrydning",
+            stationName: "Station 3",
             category: "Organisation & Kultur",
-            title: "Station 3: Tværgående vidensdeling",
+            title: "Tværgående vidensdeling",
             question: "Rapporten afdækker, at kun 26% har indsigt i andre teams arbejde[cite: 14]. Hvordan styrkes sammenhængskraften?",
             options: [
                 "Ved at omlægge fredagsmøder til faglige præsentationer og etablere tværgående temagrupper[cite: 14, 21].",
@@ -211,23 +171,23 @@
             explanation: "Drøftelse af faglige problemstillinger på tværs nedbryder silotænkning og styrker det fælles 'vi'[cite: 14, 21]."
         },
         {
-            stationName: "4. Kvalitetskrav",
+            stationName: "Station 4",
             category: "Strategi & Styring",
-            title: "Station 4: Tydelige retningslinjer",
+            title: "Tydelige retningslinjer",
             question: "Kun 42% oplever klare retningslinjer for forventet kvalitet[cite: 9]. Hvad er første skridt for at rette op på dette?",
             options: [
                 "At lade hvert team drøfte, hvad god kvalitet betyder i opgaverne, og samle det i fælles retningslinjer[cite: 21].",
-                "At lade medarbejderne helt definere alt uden indblanding fra ledelsen.",
-                "At indføre skrappe sanktioner uden forudgående dialog."
+                "At lade medarbejderne helt definere alt uden indblanding.",
+                "At indføre sanktioner uden forudgående dialog."
             ],
             correct: 0,
             explanation: "Fælles drøftelser i teams skaber organisatorisk konsensus om det forventede præstationsniveau[cite: 9, 21]."
         },
         {
-            stationName: "5. PPR Indstilling",
+            stationName: "Station 5",
             category: "Specialundervisning (Bek. 21/2017)",
-            title: "Station 5: Indstilling til Rådgivningen",
-            question: "Hvornår skal en klasselærer indstille en elev til Rådgivningen (PPR) ifølge bekendtgørelsens § 7?",
+            title: "Indstilling til Rådgivningen (PPR)",
+            question: "Hvornår skal en klasselærer indstille en elev til Rådgivningen ifølge bekendtgørelsens § 7?",
             options: [
                 "Når forældrene kræver det, uden forudgående tiltag.",
                 "Når elevens behov ikke kan tilgodeses inden for den almindelige undervisnings rammer for differentiering, eller helhedssituationen giver anledning til alvorlig bekymring[cite: 30].",
@@ -237,48 +197,48 @@
             explanation: "Ifølge § 7 indstilles eleven, når den almindelige undervisnings muligheder for differentiering ikke slår til[cite: 30]."
         },
         {
-            stationName: "6. Undervisningsplan",
+            stationName: "Station 6",
             category: "Specialundervisning (Bek. 21/2017)",
-            title: "Station 6: Individuel undervisningsplan",
+            title: "Individuel undervisningsplan",
             question: "Hvem har ansvaret for at udarbejde den individuelle undervisningsplan ved iværksættelse af specialundervisning (§ 12)?",
             options: [
                 "Elevens klasselærer og relevante lærere efter samråd med forældre og elev[cite: 31].",
                 "Kommunalbestyrelsen alene.",
-                "Kun skolelederen uden lærermedvirkning."
+                "Kun skolelederen."
             ],
             correct: 0,
             explanation: "Planen udarbejdes af klasselæreren og relevante lærere i samråd med forældre og elev[cite: 31]."
         },
         {
-            stationName: "7. Eneundervisning",
+            stationName: "Station 7",
             category: "Specialundervisning (Bek. 21/2017)",
-            title: "Station 7: Varighed af eneundervisning",
+            title: "Varighed af eneundervisning",
             question: "Hvad foreskriver § 6, stk. 3 om eneundervisning af en elev?",
             options: [
                 "At en elev kun bør modtage eneundervisning i en kortere periode, medmindre tunge funktionsvanskeligheder gør sig gældende[cite: 29].",
-                "At eneundervisning skal bruges permanent til alle udadreagerende elever.",
+                "At eneundervisning skal bruges permanent.",
                 "At eneundervisning er fuldstændig forbudt."
             ],
             correct: 0,
             explanation: "Hovedreglen er eneundervisning i kortere perioder for at sikre størst mulig inklusion[cite: 29]."
         },
         {
-            stationName: "8. Løbende Evaluering",
+            stationName: "Station 8",
             category: "Specialundervisning (Bek. 21/2017)",
-            title: "Station 8: Pædagogiske planlægningsmøder",
+            title: "Pædagogiske planlægningsmøder",
             question: "Hvor ofte skal klasselæreren og relevante lærere afholde pædagogiske planlægningsmøder for specialundervisning (§ 14)?",
             options: [
                 "Mindst hver anden måned[cite: 31].",
                 "Én gang om året.",
-                "Hver eneste uge uden undtagelse."
+                "Hver uge."
             ],
             correct: 0,
-            explanation: "§ 14, stk. 2 fastslår, at der holdes møder mindst hver anden måned for at strukturere og evaluere forløbet[cite: 31]."
+            explanation: "§ 14, stk. 2 fastslår, at der holdes møder mindst hver anden måned[cite: 31]."
         },
         {
-            stationName: "9. Handleplaner",
-            category: "Evaluering & Dokumentation (Bek. 2/2009)",
-            title: "Station 9: Hyppighed af handleplaner",
+            stationName: "Station 9",
+            category: "Evaluering (Bek. 2/2009)",
+            title: "Frekvens for handleplaner",
             question: "Hvor ofte skal der udarbejdes en handleplan for eleven forud for skole-hjemsamtaler i henhold til § 8?",
             options: [
                 "Mindst 2 gange om året[cite: 36].",
@@ -289,9 +249,9 @@
             explanation: "Handleplanen skal udarbejdes mindst 2 gange om året forud for skole-hjemsamtalerne[cite: 36]."
         },
         {
-            stationName: "10. GGS-Karakterskala",
-            category: "Evaluering & Dokumentation (Bek. 2/2009)",
-            title: "Station 10: Bedømmelse med karakteren 'E'",
+            stationName: "Station 10",
+            category: "Evaluering (Bek. 2/2009)",
+            title: "Bedømmelse med karakteren 'E'",
             question: "Hvad udtrykker karakteren 'E' i GGS-karakterskalaen (§ 23)?",
             options: [
                 "Den fremragende præstation[cite: 39].",
@@ -302,9 +262,9 @@
             explanation: "Karakteren E gives for den minimalt acceptable præstation i forhold til fagets mål[cite: 40]."
         },
         {
-            stationName: "11. Emneopgave",
-            category: "Evaluering & Dokumentation (Bek. 2/2009)",
-            title: "Station 11: Tidsramme for emneopgave",
+            stationName: "Station 11",
+            category: "Evaluering (Bek. 2/2009)",
+            title: "Tidsramme for emneopgave",
             question: "Hvor mange sammenhængende skoledage gives eleverne til det afsluttende arbejde med den emneorienterede opgave (§ 33)?",
             options: [
                 "3-5 sammenhængende skoledage[cite: 41].",
@@ -312,56 +272,56 @@
                 "1 enkelt dag."
             ],
             correct: 0,
-            explanation: "Ifølge § 33 gives der 3-5 sammenhængende skoledage til indsamling, bearbejdning og færdiggørelse af opgaven[cite: 41]."
+            explanation: "Ifølge § 33 gives der 3-5 sammenhængende skoledage til indsamling, bearbejdning og færdiggørelse[cite: 41]."
         },
         {
-            stationName: "12. Meddelelser",
-            category: "Evaluering & Dokumentation (Bek. 2/2009)",
-            title: "Station 12: Tidspunkt for skolemeddelelser",
+            stationName: "Station 12",
+            category: "Evaluering (Bek. 2/2009)",
+            title: "Tidspunkt for skolemeddelelser",
             question: "Hvornår skal skolen mindst give meddelelse til hjemmet om vidnesbyrd og oplysninger om undervisningen (§ 14)?",
             options: [
                 "Mindst 2 gange om året i november/december og i maj/juni[cite: 37].",
-                "Kun én gang årligt ved skoleårets udgang.",
+                "Kun én gang årligt.",
                 "Hver måned."
             ],
             correct: 0,
-            explanation: "§ 14 angiver, at meddelelse gives mindst 2 gange om året (nov/dec og maj/juni)[cite: 37]."
+            explanation: "§ 14 angiver, at meddelelse gives mindst 2 gange om året[cite: 37]."
         },
         {
-            stationName: "13. Økonomi & Prioritering",
+            stationName: "Station 13",
             category: "Økonomi & Styring",
-            title: "Station 13: Gennemgående blindt felt",
-            question: "Rapporten viser, at 48% oplever ubalance mellem økonomiske rammer og opgaver, og alle teams efterspørger økonomiindsigt[cite: 12]. Hva er løsningen?",
+            title: "Gennemsigtighed i økonomi",
+            question: "Rapporten viser, at 48% oplever ubalance mellem økonomiske rammer og opgaver[cite: 12]. Hvad er løsningen?",
             options: [
                 "At skabe større åbenhed om økonomi og prioriteringer, så rammerne bliver lettere at forstå[cite: 12, 21].",
-                "At holde al økonomi fuldstændig hemmelig for medarbejderne.",
-                "At lade de enkelte medarbejdere selv finansiere deres projekter."
+                "At holde al økonomi hemmelig.",
+                "At lade medarbejdere selv finansiere projekter."
             ],
             correct: 0,
-            explanation: "Åbenhed om økonomien gør det lettere for medarbejdere at forstå og acceptere opgaveprioriteringer[cite: 12, 21]."
+            explanation: "Åbenhed gør det lettere for medarbejdere at forstå og acceptere prioriteringer[cite: 12, 21]."
         },
         {
-            stationName: "14. Skolekontakt",
-            category: "Praksisnær Tilsyn & Rådgivning",
-            title: "Station 14: Kontakt til skolerne",
+            stationName: "Station 14",
+            category: "Praksisnær Kontakt",
+            title: "Kontakt til skolerne",
             question: "Flere medarbejdere efterlyser bedre indblik i, hvordan skolerne modtager styrelsens instrukser[cite: 11]. Hvad anbefales?",
             options: [
-                "At udvikle en plan og strategi for faste skolebesøg og praksisnær kontakt[cite: 11, 22].",
-                "At afbryde al direkte kontakt til folkeskolerne.",
-                "At stole blindt på at materialerne automatisk bliver anvendt korrekt."
+                "At udvikle en plan for faste skolebesøg og praksisnær kontakt[cite: 11, 22].",
+                "At afbryde al direkte kontakt.",
+                "At stole blindt på at materialer anvendes korrekt."
             ],
             correct: 0,
-            explanation: "Praksisnære skolebesøg giver styrelsen indsigt i skolernes faktiske hverdag og brug af ydelser[cite: 11, 22]."
+            explanation: "Praksisnære skolebesøg giver styrelsen indsigt i skolernes faktiske hverdag[cite: 11, 22]."
         },
         {
-            stationName: "15. Fysiske Rammer",
+            stationName: "Station 15",
             category: "Arbejdsmiljø & Lokaler",
-            title: "Station 15: Håndtering af bygningssituationen",
+            title: "Bygningssituationen",
             question: "Rapporten påpeger, at de fysiske rammer og opsplitningen på tre adresser udfordrer både arbejdsmiljø og vidensdeling[cite: 5, 18]. Hvad er konklusionen?",
             options: [
-                "At bygningssituationen og en samling af styrelsen under ét tag er afgørende for både arbejdsmiljø og siloarbejde[cite: 18, 22].",
-                "At fysiske rammer er fuldstændig ligegyldige for arbejdets kvalitet.",
-                "At lade medarbejderne arbejde permanent udendørs."
+                "At en samling af styrelsen under ét tag er afgørende for både arbejdsmiljø og siloarbejde[cite: 18, 22].",
+                "At fysiske rammer er fuldstændig ligegyldige.",
+                "At medarbejdere skal arbejde permanent udendørs."
             ],
             correct: 0,
             explanation: "Løsning af bygningssituationen gavner både arbejdsmiljøet og den tværgående vidensdeling[cite: 18, 22]."
@@ -374,7 +334,7 @@
     let playerName = "";
 
     function startGame() {
-        playerName = document.getElementById("playerName").value || "Konsulent";
+        playerName = document.getElementById("playerName").value || "Deltager";
         currentIndex = 0;
         score = 0;
         correctCount = 0;
@@ -382,34 +342,31 @@
         document.getElementById("setupScreen").classList.remove("active-screen");
         document.getElementById("gameScreen").classList.add("active-screen");
 
-        buildBoardTrack();
+        buildBoard();
         loadStation();
     }
 
-    function buildBoardTrack() {
+    function buildBoard() {
         const track = document.getElementById("boardTrack");
         track.innerHTML = "";
         stationsData.forEach((st, idx) => {
             const node = document.createElement("div");
-            node.className = `station-node ${idx === 0 ? 'active' : ''}`;
-            node.id = `station-node-${idx}`;
-            node.innerHTML = `
-                <div class="number">Station ${idx + 1}</div>
-                <div class="name">${st.stationName.split('.')[1] || st.stationName}</div>
-            `;
+            node.className = `board-node ${idx === 0 ? 'active' : ''}`;
+            node.id = `node-${idx}`;
+            node.innerHTML = `<span>Station ${idx+1}</span><small>${st.stationName.split(' ')[1] || 'Trin'}</small>`;
             track.appendChild(node);
         });
     }
 
     function updateBoardUI() {
         stationsData.forEach((_, idx) => {
-            const node = document.getElementById(`station-node-${idx}`);
-            node.className = "station-node";
+            const node = document.getElementById(`node-${idx}`);
+            node.className = "board-node";
             if (idx < currentIndex) node.classList.add("completed");
             if (idx === currentIndex) node.classList.add("active");
         });
-        
-        const activeNode = document.getElementById(`station-node-${currentIndex}`);
+
+        const activeNode = document.getElementById(`node-${currentIndex}`);
         if (activeNode) {
             activeNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         }
@@ -417,10 +374,9 @@
 
     function loadStation() {
         const st = stationsData[currentIndex];
-
-        document.getElementById("hudPlayer").innerText = playerName;
+        document.getElementById("hudPlayer").innerText = `Spiller: ${playerName}`;
         document.getElementById("hudStation").innerText = `Station ${currentIndex + 1} af 15`;
-        document.getElementById("hudScore").innerText = `${score} point`;
+        document.getElementById("hudScore").innerText = `Faglig Kapital: ${score} point`;
 
         document.getElementById("cardCategory").innerText = st.category;
         document.getElementById("cardTitle").innerText = st.title;
@@ -429,10 +385,10 @@
         const optionsList = document.getElementById("optionsList");
         optionsList.innerHTML = "";
 
-        st.options.forEach((optText, idx) => {
+        st.options.forEach((opt, idx) => {
             const btn = document.createElement("button");
             btn.className = "option-btn";
-            btn.innerText = optText;
+            btn.innerText = opt;
             btn.onclick = () => selectOption(idx, btn);
             optionsList.appendChild(btn);
         });
@@ -452,17 +408,17 @@
         if (selectedIdx === st.correct) {
             btnElement.classList.add("correct");
             feedbackBox.className = "feedback-box show success";
-            feedbackBox.innerHTML = `<strong>Korrekt besvaret!</strong><br>${st.explanation}`;
+            feedbackBox.innerHTML = `<strong>Korrekt!</strong> ${st.explanation}`;
             score += 100;
             correctCount++;
         } else {
             btnElement.classList.add("incorrect");
             buttons[st.correct].classList.add("correct");
             feedbackBox.className = "feedback-box show error";
-            feedbackBox.innerHTML = `<strong>Ikke helt korrekt.</strong><br>${st.explanation}`;
+            feedbackBox.innerHTML = `<strong>Ikke helt korrekt.</strong> ${st.explanation}`;
         }
 
-        document.getElementById("hudScore").innerText = `${score} point`;
+        document.getElementById("hudScore").innerText = `Faglig Kapital: ${score} point`;
         document.getElementById("nextBtn").style.display = "block";
     }
 
