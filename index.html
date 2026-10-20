@@ -3,454 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lov-Navigatoren: Folkeskolelovgivning i Grønland</title>
+    <title>Lov-Navigatoren App - Ilinniartitaanermut Aqutsisoqarfik</title>
     <style>
         :root {
-            --primary: #003b46;
-            --secondary: #07575b;
-            --accent: #66a5ad;
-            --light: #f4f7f6;
-            --dark: #2e3033;
-            --coral: #e07a5f;
-            --card-bg: #ffffff;
-            --border: #d3d3d3;
+            --bg-dark: #0b1320;
+            --panel-bg: #111a2e;
+            --card-bg: #17243b;
+            --border: #233554;
+            --cyan: #00d2d3;
+            --cyan-hover: #00b8b9;
+            --green: #10b981;
+            --coral: #f43f5e;
+            --gold: #f59e0b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--light); color: var(--dark); line-height: 1.6; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--light); padding-bottom: 15px; }
-        header h1 { color: var(--primary); font-size: 24px; margin-bottom: 5px; }
-        header p { color: #666; font-size: 14px; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.5; padding: 15px; font-size: 14px; }
+
+        /* Top Bar */
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--panel-bg); padding: 12px 20px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 15px; }
+        .nav-brand { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { width: 36px; height: 36px; background: var(--cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--bg-dark); font-weight: bold; font-size: 18px; }
+        .brand-text h1 { font-size: 18px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .badge-greenland { background: rgba(16, 185, 129, 0.2); color: var(--green); padding: 2px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase; }
+        .brand-text p { font-size: 12px; color: var(--text-sub); }
+        .nav-actions { display: flex; gap: 10px; }
+        .btn-sm { background: #1e293b; border: 1px solid var(--border); color: var(--text-main); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .btn-sm:hover { background: #334155; }
+        .btn-cyan { background: var(--cyan); color: var(--bg-dark); border: none; }
+        .btn-cyan:hover { background: var(--cyan-hover); }
+
+        /* Layout Grid */
+        .app-layout { display: grid; grid-template-columns: 300px 1fr; gap: 15px; }
+
+        /* Left Sidebar */
+        .sidebar { display: flex; flex-direction: column; gap: 15px; }
+        .panel { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-sub); letter-spacing: 0.5px; }
+        .badge-cyan { background: rgba(0, 210, 211, 0.15); color: var(--cyan); padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+
+        .turn-card { background: var(--card-bg); border-radius: 8px; padding: 14px; border: 1px solid var(--border); margin-bottom: 12px; }
+        .team-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; }
+        .stat-box { background: rgba(0,0,0,0.2); padding: 8px 4px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-box label { display: block; font-size: 9px; text-transform: uppercase; color: var(--text-sub); font-weight: 700; }
+        .stat-box val { font-size: 14px; font-weight: 700; color: var(--gold); }
+
+        .action-box { display: flex; gap: 12px; align-items: center; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
+        .dice-num { width: 42px; height: 42px; background: #0f172a; border: 2px solid var(--cyan); color: var(--cyan); font-size: 20px; font-weight: 800; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .action-text { font-size: 12px; color: var(--text-sub); }
+        .btn-roll { width: 100%; margin-top: 10px; background: var(--cyan); color: var(--bg-dark); font-weight: 700; border: none; padding: 10px; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .standings-list { display: flex; flex-direction: column; gap: 8px; }
+        .standing-item { display: flex; justify-content: space-between; background: var(--card-bg); padding: 10px 12px; border-radius: 6px; font-size: 13px; border: 1px solid var(--border); }
+        .standing-item .pos { color: var(--cyan); font-weight: 700; }
+
+        .tip-panel { background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .tip-title { color: var(--gold); font-size: 13px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+
+        /* Main Content */
+        .main-content { display: flex; flex-direction: column; gap: 15px; }
+
+        /* Stations Grid Container */
+        .stations-container { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+        .stations-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .stations-header h2 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+        .stations-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
         
-        .setup-screen, .game-screen, .end-screen { display: none; }
-        .active-screen { display: block; }
+        .station-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; position: relative; transition: all 0.2s; min-height: 85px; }
+        .station-card .num { position: absolute; top: 6px; right: 8px; font-size: 10px; color: var(--text-sub); font-weight: 700; }
+        .station-card .name { font-size: 12px; font-weight: 700; margin-top: 12px; color: #fff; line-height: 1.2; }
+        .station-card .desc { font-size: 10px; color: var(--text-sub); margin-top: 4px; line-height: 1.1; }
+        .station-card.active { border-color: var(--cyan); background: rgba(0, 210, 211, 0.08); box-shadow: 0 0 10px rgba(0, 210, 211, 0.15); }
+        .station-card.completed { border-color: var(--green); opacity: 0.8; }
+        .station-dot { width: 8px; height: 8px; border-radius: 50%; position: absolute; bottom: 8px; left: 8px; background: var(--text-sub); }
+        .station-card.active .station-dot { background: var(--cyan); }
+        .station-card.completed .station-dot { background: var(--green); }
 
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--primary); }
-        select, input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 16px; }
-        .btn { background-color: var(--secondary); color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; transition: background 0.2s; margin-top: 10px; }
-        .btn:hover { background-color: var(--primary); }
+        /* Card Challenge Engine */
+        .card-panel { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+        .card-header-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--gold); color: var(--bg-dark); font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 4px; text-transform: uppercase; margin-bottom: 12px; }
+        .card-main-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; color: #fff; }
+        .question-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 14px; margin-bottom: 16px; color: #e2e8f0; line-height: 1.6; }
 
-        .dashboard { display: flex; justify-content: space-between; background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: bold; border-left: 5px solid var(--accent); }
-        .board-track { display: flex; overflow-x: auto; gap: 10px; padding: 10px 0; margin-bottom: 20px; scrollbar-width: thin; }
-        .board-node { min-width: 100px; height: 70px; background: #e9ecef; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid transparent; text-align: center; padding: 5px; flex-shrink: 0; }
-        .board-node.active { background: var(--accent); color: white; border-color: var(--primary); transform: scale(1.05); }
-        .board-node.completed { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .options-grid { display: flex; flex-direction: column; gap: 10px; }
+        .opt-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; text-align: left; color: var(--text-main); font-size: 13px; cursor: pointer; display: flex; gap: 12px; transition: all 0.2s; }
+        .opt-btn:hover:not(:disabled) { border-color: var(--cyan); background: #1e2d4a; }
+        .opt-letter { font-weight: 800; color: var(--cyan); background: rgba(0,210,211,0.1); width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .opt-btn.correct { background: rgba(16, 185, 129, 0.15) !important; border-color: var(--green) !important; color: #fff; }
+        .opt-btn.incorrect { background: rgba(244, 63, 94, 0.15) !important; border-color: var(--coral) !important; color: #fff; }
 
-        .card-container { background: #fff; border: 2px solid var(--secondary); border-radius: 10px; padding: 25px; box-shadow: 0 6px 12px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; }
-        .card-badge { position: absolute; top: -12px; left: 20px; background: var(--coral); color: white; padding: 3px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; text-transform: uppercase; }
-        .card-title { font-size: 18px; color: var(--primary); margin-top: 10px; margin-bottom: 15px; font-weight: bold; }
-        .card-question { font-size: 16px; margin-bottom: 20px; }
-        
-        .options-list { display: flex; flex-direction: column; gap: 10px; }
-        .option-btn { background: var(--light); border: 1px solid var(--border); padding: 12px 15px; text-align: left; border-radius: 6px; cursor: pointer; font-size: 15px; transition: all 0.2s; }
-        .option-btn.hover:not(:disabled) { background: #e2e8f0; border-color: var(--secondary); }
-        .option-btn.correct { background: #d4edda !important; border-color: #28a745 !important; color: #155724; font-weight: bold; }
-        .option-btn.incorrect { background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24; }
+        .feedback-area { margin-top: 15px; padding: 14px; border-radius: 8px; font-size: 13px; display: none; }
+        .feedback-area.show { display: block; }
+        .feedback-area.success { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--green); color: #6ee7b7; }
+        .feedback-area.error { background: rgba(244, 63, 94, 0.1); border: 1px solid var(--coral); color: #fca5a5; }
 
-        .feedback-box { margin-top: 20px; padding: 15px; border-radius: 6px; font-size: 14px; display: none; }
-        .feedback-box.show { display: block; }
-        .feedback-box.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .feedback-box.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; pt: 10px; }
+        .btn-bonus { background: transparent; border: 1px solid var(--gold); color: var(--gold); font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+        .btn-bonus:hover { background: rgba(245, 158, 11, 0.1); }
+        .footer-note { font-size: 11px; color: var(--text-sub); }
 
-        .next-btn { margin-top: 15px; display: none; }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; text-align: center; }
-        .stat-card { background: var(--light); padding: 15px; border-radius: 8px; }
-        .stat-card h3 { font-size: 22px; color: var(--primary); }
-        .stat-card p { font-size: 13px; color: #666; }
+        /* Footer */
+        footer { margin-top: 15px; display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); padding: 0 5px; }
+
+        /* End Overlay */
+        .end-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 19, 32, 0.95); z-index: 100; align-items: center; justify-content: center; }
+        .end-modal.active { display: flex; }
+        .end-box { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 12px; padding: 30px; max-width: 500px; text-align: center; }
+        .end-box h2 { color: var(--cyan); font-size: 24px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Folkeskolelov-navigator</h1>
-        <p>Spil om ILA for ILA-ansatte</p>
-    </header>
-
-    <!-- SETUP SCREEN -->
-    <div id="setupScreen" class="setup-screen active-screen">
-        <div class="form-group">
-            <label for="playerName">Holdnavn / Deltagernavn:</label>
-            <input type="text" id="playerName" value="Team Siammaavik / Konsulent">
-        </div>
-        <div class="form-group">
-            <label for="gameMode">Spiltilstand:</label>
-            <select id="gameMode">
-                <option value="all">Samlet Forløb: Alle 15 Stationer</option>
-            </select>
-        </div>
-        <button class="btn" onclick="startGame()">Start Rejsen</button>
-    </div>
-
-    <!-- GAME SCREEN -->
-    <div id="gameScreen" class="game-screen">
-        <div class="dashboard">
-            <div id="hudPlayer">Spiller: Hold 1</div>
-            <div id="hudStation">Station 1 af 15</div>
-            <div id="hudScore">Faglig Kapital: 0 point</div>
-        </div>
-
-        <div class="board-track" id="boardTrack">
-            <!-- Dynamisk genererede stationer -->
-        </div>
-
-        <div class="card-container">
-            <div class="card-badge" id="cardCategory">Kategori</div>
-            <div class="card-title" id="cardTitle">Sagsoverskrift</div>
-            <div class="card-question" id="cardQuestion">Her vises spørgsmålet...</div>
-            <div class="options-list" id="optionsList">
-                <!-- Svarmuligheder -->
+    <!-- Top Navigation -->
+    <div class="navbar">
+        <div class="nav-brand">
+            <div class="logo-icon">⛵</div>
+            <div class="brand-text">
+                <h1>Lov-Navigatoren <span class="badge-greenland">Grønland</span></h1>
+                <p>Ilinniartitaanermut Aqutsisoqarfik • Folkeskolelovgivningen</p>
             </div>
-            <div class="feedback-box" id="feedbackBox"></div>
-            <button class="btn next-btn" id="nextBtn" onclick="nextStation()">Næste Station</button>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-sm" onclick="resetGame()">↻ Nulstil</button>
+            <button class="btn-sm btn-cyan">📖 Regler & Vejledning</button>
         </div>
     </div>
 
-    <!-- END SCREEN -->
-    <div id="endScreen" class="end-screen">
-        <h2>Spillet er gennemført!</h2>
-        <p style="margin: 15px 0;">Du har navigeret igennem samtlige 15 stationer og demonstreret stærkt kendskab til lovgivning, bekendtgørelser og styrelsens praksis[cite: 4, 6, 28, 35].</p>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3 id="finalScore">0</h3>
-                <p>Samlet Faglig Kapital</p>
+    <!-- Layout Grid -->
+    <div class="app-layout">
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="panel">
+                <div class="panel-header">
+                    <span>Aktiv Tur</span>
+                    <span class="badge-cyan">Hold 1</span>
+                </div>
+                <div class="turn-card">
+                    <div class="team-title">Hold 1</div>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <label>Arbejdstid</label>
+                            <val id="valTime">⌛ 3</val>
+                        </div>
+                        <div class="stat-box">
+                            <label>Lov-Bonus</label>
+                            <val id="valBonus">📜 2</val>
+                        </div>
+                        <div class="stat-box">
+                            <label>Kredibilitet</label>
+                            <val id="valCred">Ω 100</val>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-box">
+                    <div class="dice-num" id="diceNum">2</div>
+                    <div class="action-text">
+                        <strong>Handling for turen</strong><br>
+                        Svar på spørgsmålet for at rykke frem på stationen.
+                    </div>
+                </div>
+                <button class="btn-roll" onclick="rollDice()">Slå Terning / Næste</button>
             </div>
-            <div class="stat-card">
-                <h3 id="finalCorrect">0/15</h3>
-                <p>Korrekte Stationer</p>
+
+            <div class="panel">
+                <div class="panel-header">Samlet Stilling</div>
+                <div class="standings-list">
+                    <div class="standing-item">
+                        <span>● Hold 1</span>
+                        <span>Pos: <strong id="posHold1">#1</strong> | Kred: <strong>100</strong></span>
+                    </div>
+                    <div class="standing-item">
+                        <span>● Hold 2</span>
+                        <span>Pos: <strong id="posHold2">#1</strong> | Kred: <strong>100</strong></span>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card">
-                <h3 id="finalStatus">Ekspert</h3>
-                <p>Lov-Niveau</p>
+
+            <div class="panel tip-panel">
+                <div class="tip-title">💡 Tip til spillet</div>
+                <p style="font-size: 11px; color: var(--text-sub);">
+                    Vidste du, at dyb paragrafindsigt sparer arbejdstid? Svarer I rigtigt på Gule Lov-kort, undgår I bureaukratiske forsinkelser!
+                </p>
             </div>
         </div>
-        <button class="btn" onclick="resetGame()">Spil igen</button>
+
+        <!-- Main Workspace -->
+        <div class="main-content">
+            
+            <!-- Stations Track -->
+            <div class="stations-container">
+                <div class="stations-header">
+                    <h2>🗺️ Kyst-til-Kyst Ruten (15 Stationer)</h2>
+                    <span style="font-size: 12px; color: var(--text-sub);">Fra idé til skolehverdag</span>
+                </div>
+                <div class="stations-grid" id="stationsGrid">
+                    <!-- 15 stationer genereres dynamisk -->
+                </div>
+            </div>
+
+            <!-- Card Challenge Area -->
+            <div class="card-panel">
+                <div class="card-header-badge" id="cardBadge">📜 PARAGRAF-KORT</div>
+                <div class="card-main-title" id="cardTitle">Folkeskolens Formål og Værdigrundlag (§ 2)</div>
+                
+                <div class="question-box" id="cardQuestion">
+                    En kommune ønsker at etablere en lokal forsøgsordning, hvor undervisningen på 8.-10. klassetrin tilrettelægges udelukkende med henblik på erhvervsrettet kvalificering og uden de obligatoriske faglige krav i læreplanerne. Hvilken juridisk ramme gør sig gældende?
+                </div>
+
+                <div class="options-grid" id="optionsGrid">
+                    <!-- Svarmuligheder -->
+                </div>
+
+                <div class="feedback-area" id="feedbackArea"></div>
+
+                <div class="card-footer">
+                    <button class="btn-bonus" onclick="useBonus()">✨ Brug Lov-Bonus (Fjern 1 forkert svar)</button>
+                    <span class="footer-note">Vælg et svar for juridisk vurdering</span>
+                </div>
+            </div>
+
+        </div>
     </div>
-</div>
+
+    <footer>
+        <span>Ilinniartitaanermut Aqutsisoqarfik • Uddannelsesstyrelsen Grønland</span>
+        <span>Lov-Navigatoren v2.0 • Baseret på Inatsisartutlov nr. 15 af 3. dec. 2012</span>
+    </footer>
+
+    <!-- End Game Modal -->
+    <div class="end-modal" id="endModal">
+        <div class="end-box">
+            <h2>🏆 Alle 15 Stationer Gennemført!</h2>
+            <p style="color: var(--text-sub); margin: 15px 0;">Holdet har gennemført hele kystruten og opnået stærk faglig kompetence i lovgivningen.</p>
+            <div style="font-size: 24px; font-weight: 800; color: var(--gold); margin-bottom: 20px;" id="finalScoreText">1500 Point</div>
+            <button class="btn-roll" onclick="resetGame()">Start Ny Tørn</button>
+        </div>
+    </div>
 
 <script>
     const stationsData = [
-        {
-            stationName: "Station 1",
-            category: "Lovgrundlag & Onboarding",
-            title: "Nyansatte og lovkendskab",
-            question: "Undersøgelser viser, at især nyansatte med 1-3 års anciennitet efterspørger dybere indsigt i lovgivningen[cite: 10]. Hvad er den anbefalede onboarding-løsning?",
-            options: [
-                "At overlade al oplæring til tilfældige samtaler i teamet.",
-                "At indføre en fast, afdelingsspecifik onboarding-procedure med en struktureret introduktion til lovfeltet tidligt i forløbet[cite: 10, 21].",
-                "At forvente, at medarbejderne selv læser loven uden hjælp."
-            ],
-            correct: 1,
-            explanation: "En formaliseret afdelingsspecifik onboarding med et fast lovmodul sikrer tryghed og kendskab til rammerne[cite: 10, 21]."
-        },
-        {
-            stationName: "Station 2",
-            category: "Politisk Styring",
-            title: "Akut politisk forespørgsel",
-            question: "Departementet sender en hasteforespørgsel om specialundervisningsressourcer fredag eftermiddag med svarfrist mandag[cite: 4]. Hvad er den korrekte praksis?",
-            options: [
-                "At besvare forespørgslen prompte ved at inddrage specialiseret fagviden på tværs af teams[cite: 4, 11].",
-                "At afvise opgaven indtil mandag formiddag.",
-                "At videresende sagen til kommunen uden intern koordinering."
-            ],
-            correct: 0,
-            explanation: "Hasteopgaver af politisk karakter kræver hurtig leverancesikkerhed og tværfaglig inddragelse[cite: 4, 11]."
-        },
-        {
-            stationName: "Station 3",
-            category: "Organisation & Kultur",
-            title: "Tværgående vidensdeling",
-            question: "Rapporten afdækker, at kun 26% har indsigt i andre teams arbejde[cite: 14]. Hvordan styrkes sammenhængskraften?",
-            options: [
-                "Ved at omlægge fredagsmøder til faglige præsentationer og etablere tværgående temagrupper[cite: 14, 21].",
-                "Ved at afskaffe al deling af information på tværs.",
-                "Ved udelukkende at kommunikere via formelle referater[cite: 14]."
-            ],
-            correct: 0,
-            explanation: "Drøftelse af faglige problemstillinger på tværs nedbryder silotænkning og styrker det fælles 'vi'[cite: 14, 21]."
-        },
-        {
-            stationName: "Station 4",
-            category: "Strategi & Styring",
-            title: "Tydelige retningslinjer",
-            question: "Kun 42% oplever klare retningslinjer for forventet kvalitet[cite: 9]. Hvad er første skridt for at rette op på dette?",
-            options: [
-                "At lade hvert team drøfte, hvad god kvalitet betyder i opgaverne, og samle det i fælles retningslinjer[cite: 21].",
-                "At lade medarbejderne helt definere alt uden indblanding.",
-                "At indføre sanktioner uden forudgående dialog."
-            ],
-            correct: 0,
-            explanation: "Fælles drøftelser i teams skaber organisatorisk konsensus om det forventede præstationsniveau[cite: 9, 21]."
-        },
-        {
-            stationName: "Station 5",
-            category: "Specialundervisning (Bek. 21/2017)",
-            title: "Indstilling til Rådgivningen (PPR)",
-            question: "Hvornår skal en klasselærer indstille en elev til Rådgivningen ifølge bekendtgørelsens § 7?",
-            options: [
-                "Når forældrene kræver det, uden forudgående tiltag.",
-                "Når elevens behov ikke kan tilgodeses inden for den almindelige undervisnings rammer for differentiering, eller helhedssituationen giver anledning til alvorlig bekymring[cite: 30].",
-                "Når eleven har haft fravær i en enkelt uge."
-            ],
-            correct: 1,
-            explanation: "Ifølge § 7 indstilles eleven, når den almindelige undervisnings muligheder for differentiering ikke slår til[cite: 30]."
-        },
-        {
-            stationName: "Station 6",
-            category: "Specialundervisning (Bek. 21/2017)",
-            title: "Individuel undervisningsplan",
-            question: "Hvem har ansvaret for at udarbejde den individuelle undervisningsplan ved iværksættelse af specialundervisning (§ 12)?",
-            options: [
-                "Elevens klasselærer og relevante lærere efter samråd med forældre og elev[cite: 31].",
-                "Kommunalbestyrelsen alene.",
-                "Kun skolelederen."
-            ],
-            correct: 0,
-            explanation: "Planen udarbejdes af klasselæreren og relevante lærere i samråd med forældre og elev[cite: 31]."
-        },
-        {
-            stationName: "Station 7",
-            category: "Specialundervisning (Bek. 21/2017)",
-            title: "Varighed af eneundervisning",
-            question: "Hvad foreskriver § 6, stk. 3 om eneundervisning af en elev?",
-            options: [
-                "At en elev kun bør modtage eneundervisning i en kortere periode, medmindre tunge funktionsvanskeligheder gør sig gældende[cite: 29].",
-                "At eneundervisning skal bruges permanent.",
-                "At eneundervisning er fuldstændig forbudt."
-            ],
-            correct: 0,
-            explanation: "Hovedreglen er eneundervisning i kortere perioder for at sikre størst mulig inklusion[cite: 29]."
-        },
-        {
-            stationName: "Station 8",
-            category: "Specialundervisning (Bek. 21/2017)",
-            title: "Pædagogiske planlægningsmøder",
-            question: "Hvor ofte skal klasselæreren og relevante lærere afholde pædagogiske planlægningsmøder for specialundervisning (§ 14)?",
-            options: [
-                "Mindst hver anden måned[cite: 31].",
-                "Én gang om året.",
-                "Hver uge."
-            ],
-            correct: 0,
-            explanation: "§ 14, stk. 2 fastslår, at der holdes møder mindst hver anden måned[cite: 31]."
-        },
-        {
-            stationName: "Station 9",
-            category: "Evaluering (Bek. 2/2009)",
-            title: "Frekvens for handleplaner",
-            question: "Hvor ofte skal der udarbejdes en handleplan for eleven forud for skole-hjemsamtaler i henhold til § 8?",
-            options: [
-                "Mindst 2 gange om året[cite: 36].",
-                "4 gange om året.",
-                "Kun ved skolegangens start."
-            ],
-            correct: 0,
-            explanation: "Handleplanen skal udarbejdes mindst 2 gange om året forud for skole-hjemsamtalerne[cite: 36]."
-        },
-        {
-            stationName: "Station 10",
-            category: "Evaluering (Bek. 2/2009)",
-            title: "Bedømmelse med karakteren 'E'",
-            question: "Hvad udtrykker karakteren 'E' i GGS-karakterskalaen (§ 23)?",
-            options: [
-                "Den fremragende præstation[cite: 39].",
-                "Den tilstrækkelige præstation, der demonstrerer den minimalt acceptable grad af opfyldelse af fagets mål[cite: 40].",
-                "Den helt uacceptable præstation[cite: 40]."
-            ],
-            correct: 1,
-            explanation: "Karakteren E gives for den minimalt acceptable præstation i forhold til fagets mål[cite: 40]."
-        },
-        {
-            stationName: "Station 11",
-            category: "Evaluering (Bek. 2/2009)",
-            title: "Tidsramme for emneopgave",
-            question: "Hvor mange sammenhængende skoledage gives eleverne til det afsluttende arbejde med den emneorienterede opgave (§ 33)?",
-            options: [
-                "3-5 sammenhængende skoledage[cite: 41].",
-                "14 dage.",
-                "1 enkelt dag."
-            ],
-            correct: 0,
-            explanation: "Ifølge § 33 gives der 3-5 sammenhængende skoledage til indsamling, bearbejdning og færdiggørelse[cite: 41]."
-        },
-        {
-            stationName: "Station 12",
-            category: "Evaluering (Bek. 2/2009)",
-            title: "Tidspunkt for skolemeddelelser",
-            question: "Hvornår skal skolen mindst give meddelelse til hjemmet om vidnesbyrd og oplysninger om undervisningen (§ 14)?",
-            options: [
-                "Mindst 2 gange om året i november/december og i maj/juni[cite: 37].",
-                "Kun én gang årligt.",
-                "Hver måned."
-            ],
-            correct: 0,
-            explanation: "§ 14 angiver, at meddelelse gives mindst 2 gange om året[cite: 37]."
-        },
-        {
-            stationName: "Station 13",
-            category: "Økonomi & Styring",
-            title: "Gennemsigtighed i økonomi",
-            question: "Rapporten viser, at 48% oplever ubalance mellem økonomiske rammer og opgaver[cite: 12]. Hvad er løsningen?",
-            options: [
-                "At skabe større åbenhed om økonomi og prioriteringer, så rammerne bliver lettere at forstå[cite: 12, 21].",
-                "At holde al økonomi hemmelig.",
-                "At lade medarbejdere selv finansiere projekter."
-            ],
-            correct: 0,
-            explanation: "Åbenhed gør det lettere for medarbejdere at forstå og acceptere prioriteringer[cite: 12, 21]."
-        },
-        {
-            stationName: "Station 14",
-            category: "Praksisnær Kontakt",
-            title: "Kontakt til skolerne",
-            question: "Flere medarbejdere efterlyser bedre indblik i, hvordan skolerne modtager styrelsens instrukser[cite: 11]. Hvad anbefales?",
-            options: [
-                "At udvikle en plan for faste skolebesøg og praksisnær kontakt[cite: 11, 22].",
-                "At afbryde al direkte kontakt.",
-                "At stole blindt på at materialer anvendes korrekt."
-            ],
-            correct: 0,
-            explanation: "Praksisnære skolebesøg giver styrelsen indsigt i skolernes faktiske hverdag[cite: 11, 22]."
-        },
-        {
-            stationName: "Station 15",
-            category: "Arbejdsmiljø & Lokaler",
-            title: "Bygningssituationen",
-            question: "Rapporten påpeger, at de fysiske rammer og opsplitningen på tre adresser udfordrer både arbejdsmiljø og vidensdeling[cite: 5, 18]. Hvad er konklusionen?",
-            options: [
-                "At en samling af styrelsen under ét tag er afgørende for både arbejdsmiljø og siloarbejde[cite: 18, 22].",
-                "At fysiske rammer er fuldstændig ligegyldige.",
-                "At medarbejdere skal arbejde permanent udendørs."
-            ],
-            correct: 0,
-            explanation: "Løsning af bygningssituationen gavner både arbejdsmiljøet og den tværgående vidensdeling[cite: 18, 22]."
-        }
+        { name: "1. Start", desc: "Nye Mål & Strategier", cat: "Onboarding", title: "Station 1: Nyansatte og lovkendskab", q: "Undersøgelser viser, at især nyansatte med 1-3 års anciennitet efterspørger dybere indsigt i lovgivningen[cite: 10]. Hvad er den anbefalede onboarding-løsning?", opts: ["At overlade al oplæring til uformelle samtaler.", "At indføre en fast afdelingsspecifik onboarding med struktureret lovintroduktion[cite: 10, 21].", "At lade medarbejderen gætte sig frem.", "At kræve juridisk kandidateksamen ved ansættelse."], correct: 1, exp: "En formaliseret afdelingsspecifik onboarding med et fast lovmodul sikrer tryghed og kendskab til rammerne[cite: 10, 21]." },
+        { name: "2. Siammaavik", desc: "Information & Rådgivning", cat: "Hasteopgaver", title: "Station 2: Akut politisk forespørgsel", q: "Departementet sender en hasteforespørgsel om specialundervisningsressourcer fredag eftermiddag med svarfrist mandag[cite: 4]. Hvad er den korrekte praksis?", opts: ["At besvare forespørgslen prompte ved at inddrage fagviden på tværs af teams[cite: 4, 11].", "At afvise henvendelsen over weekenden.", "At sende sagen ubehandlet til kommunerne.", "At udskyde alle svar på ubestemt tid."], correct: 0, exp: "Hasteopgaver af politisk karakter kræver hurtig leverancesikkerhed og tværfaglig inddragelse[cite: 4, 11]." },
+        { name: "3. Paragraf 2", desc: "Folkeskolens Formål", cat: "Folkeskolelov", title: "Station 3: Folkeskolens Formål og Værdigrundlag (§ 2)", q: "En kommune ønsker at etablere en lokal forsøgsordning uden obligatoriske læreplaner. Hvilken juridisk ramme gør sig gældende?", opts: ["Kommunen har fuld ret til at ændre fagsammensætningen udenom loven.", "Folkeskolen har almendannende karakter. Fravigelse kræver godkendelse/dispensation fra Naalakkersuisut.", "Styrelsen kan på eget initiativ fritage kommunen fra lovens formål.", "Forsøgsordninger falder helt uden for lovens rækkevidde."], correct: 1, exp: "Folkeskolens formål er lovbundet, og fravigelse af læreplaner eller rammer kræver godkendelse fra overordnet myndighed." },
+        { name: "4. Onboarding", desc: "Introduktion & Lovguide", cat: "Onboarding", title: "Station 4: Procedurer for nye medarbejdere", q: "Hvilken praksis fremmer bedst fastholdelsen af nye fagkonsulenter ifølge selvevalueringen?", opts: ["Brug af en dedikeret afdelingsspecifik onboarding-håndbog sammen med mentorer[cite: 10, 21].", "Lade nye lærere sejle deres egen sø.", "Kun at udlevere et kort velkomstbrev.", "At gennemføre kurser uden relevans for opgaverne."], correct: 0, exp: "Afdelingsspecifikke procedurer gør introduktionen direkte anvendelig for konsulenternes hverdag[cite: 10, 21]." },
+        { name: "5. Silo-Udfordring", desc: "Tværgående Vidensdeling", cat: "Kultur", title: "Station 5: Nedbrydning af faglige siloer", q: "Rapporten afdækker, at kun 26% har indsigt i andre teams arbejde[cite: 14]. Hvordan styrkes sammenhængskraften?", opts: ["At omlægge fredagsmøder til faglige præsentationer og temagrupper[cite: 14, 21].", "At afskaffe al tværgående orientering.", "At isolere teams på hver deres etage.", "At forbyde samarbejde mellem afdelinger."], correct: 0, exp: "Faglige bidrag og dialoger på tværs nedbryder silotænkning og opbygger et fælles 'vi'[cite: 14, 21]." },
+        { name: "6. Ilinniusiorfik", desc: "Læremidler & Godkendelse", cat: "Undervisningsmidler", title: "Station 6: Udvikling af grønlandske læremidler", q: "Hvad er forlagsgruppens vigtigste opgave i forhold til læreplansmålene?", opts: ["At sikre kultur- og sprogtilpassede læremidler i overensstemmelse med læringsmålene.", "Kun at oversætte danske bøger direkte uden tilpasning.", "At trykke materiale uden faglig vurdering.", "At udgive bøger uden om skolesystemet."], correct: 0, exp: "Ilinniusiorfik sikrer didaktisk og kulturelt forankrede undervisningsmidler til grundskolen[cite: 2]." },
+        { name: "7. Sprog-rammer", desc: "Undervisningssprog (§ 3)", cat: "Sprogpolitik", title: "Station 7: Sproglige rammer i folkeskolen", q: "Hvad er hovedreglen for undervisningssproget i den grønlandske folkeskole?", opts: ["Undervisningssproget er grønlandsk, mens dansk og engelsk er obligatoriske fremmedsprog.", "Der må kun undervises på engelsk.", "Undervisningssproget vælges frit af den enkelte elev.", "Det er udelukkende kommunen, der bestemmer sproget uden lovramme."], correct: 0, exp: "Grønlandsk er skolenets primære sprog, suppleret med styrket fremmedsprogsundervisning." },
+        { name: "8. Data & Test", desc: "Afgangsprøver & Tilsyn", cat: "Evaluering (Bek. 2/2009)", title: "Station 8: Trin-tests og afgangsprøver", q: "Hvornår afholdes de obligatoriske skriftlige trin-tests i henhold til Bekendtgørelse nr. 2 af 2009?", opts: ["I perioden marts til maj på henholdsvis 3. og 7. klassetrin[cite: 38, 39].", "Hver eneste måned hele året.", "Kun på 10. klassetrin ved udskoling.", "Testene afvikles udelukkende mundtligt."], correct: 0, exp: "Skriftlige trin-tests afvikles om foråret på 3. og 7. klassetrin i centrale fag[cite: 38, 39]." },
+        { name: "9. § 37-Hasteopgave", desc: "Politisk Forespørgsel", cat: "Hasteopgaver", title: "Station 9: Håndtering af udvalgsspørgsmål", q: "Hvordan sikres kvalitet i § 37-besvarelser under kraftigt tidspres?", opts: ["Ved at benytte skabeloner og klar ansvarsfordeling mellem konsulenter og ledelse[cite: 4, 12].", "Ved at skrive tilfældige svar uden datagrundlag.", "Ved altid at bede om at få spørgsmålet annulleret.", "Ved at lade sagen ligge ubesvaret."], correct: 0, exp: "Standardiserede arbejdsgange og hurtig faglig sparring sikrer korrekte politiske besvarelser[cite: 4, 12]." },
+        { name: "10. Mål: Folkeskolen", desc: "Vellykket Udmøntning", cat: "Specialundervisning (Bek. 21/2017)", title: "Station 10: Indstilling til PPR (§ 7)", q: "Hvornår skal en klasselærer indstille en elev til pædagogisk-psykologisk vurdering?", opts: ["Når elevens behov ikke kan dækkes via almindelig undervisningsdifferentiering[cite: 30].", "Når eleven glemmer sine lektier én enkelt gang.", "Uden at orientere forældrene.", "Først når skolen nedlægges."], correct: 0, exp: "Indstilling sker, når den almindelige undervisnings muligheder for støtte og differentiering er udtømt[cite: 30]." },
+        { name: "11. Ind. Undervisningsplan", desc: "Kvalitetssikring", cat: "Specialundervisning (Bek. 21/2017)", title: "Station 11: Individuel undervisningsplan (§ 12)", q: "Hvem udarbejder den individuelle undervisningsplan for specialundervisning?", opts: ["Klasselæreren og relevante lærere efter samråd med elev og forældre[cite: 31].", "Departementets direktør personligt.", "Kommunens økonomiudvalg.", "Eleven alene uden hjælp."], correct: 0, exp: "Lærerteamet udarbejder planen tæt sammen med forældre og elev[cite: 31]." },
+        { name: "12. GGS-Skalaen", desc: "Karaktergivning", cat: "Evaluering (Bek. 2/2009)", title: "Station 12: Bedømmelse med karakteren 'E' (§ 23)", q: "Hvad kendetegner karakteren 'E' på GGS-skalaen?", opts: ["Den tilstrækkelige præstation med minimalt acceptabel opfyldelse[cite: 40].", "En helt uacceptabel præstation[cite: 40].", "Den fremragende præstation uden mangler[cite: 39].", "At eleven er fritaget for bedømmelse."], correct: 0, exp: "E angiver den minimalt acceptable opfyldelse af fagets læringsmål[cite: 40]." },
+        { name: "13. Handleplaner", desc: "Skole-hjem samarbejde", cat: "Evaluering (Bek. 2/2009)", title: "Station 13: Elevens handleplaner (§ 8)", q: "Hvor ofte skal klasselæreren udarbejde en handleplan sammen med eleven?", opts: ["Mindst 2 gange om året forud for skole-hjemsamtaler[cite: 36].", "Kun hvert fjerde år.", "Hver uge.", "Slet ikke, det er frivilligt."], correct: 0, exp: "Handleplanen udarbejdes mindst to gange årligt for at sætte klare mål for elevens læring[cite: 36]." },
+        { name: "14. Skolekontakt", desc: "Praksisnær Tilsyn", cat: "Styrelse & Skole", title: "Station 14: Styrket direkte skolekontakt", q: "Hvorfor anbefaler selvevalueringen mere direkte kontakt til skolerne?", opts: ["For at forstå hvordan rådgivning og læremidler modtages i praksis[cite: 11, 22].", "For at kontrollere lærernes arbejdstid.", "For at overtage undervisningen fra lærerne.", "For at lukke små skoler."], correct: 0, exp: "Praksisnær kontakt giver styrelsen afgørende feedback på egne ydelser og vejledninger[cite: 11, 22]." },
+        { name: "15. Samlet Mål", desc: "Kyst-til-Kyst gennemført", cat: "Samlet Lovgivning", title: "Station 15: Samling af styrelsen under ét tag", q: "Hvad er konklusionen vedrørende de bygningsmæssige udfordringer?", opts: ["En samlet løsning vil gavne både det psykiske arbejdsmiljø og vidensdelingen[cite: 18, 22].", "Bygningerne har ingen betydning for arbejdet.", "Styrelsen skal opdeles i endnu flere adresser.", "Arbejdet bør kun foregå via telefon."], correct: 0, exp: "At samle organisationen fjerner fysiske barrierer for samarbejde og modvirker siloer[cite: 18, 22]." }
     ];
 
-    let currentIndex = 0;
-    let score = 0;
-    let correctCount = 0;
-    let playerName = "";
+    let currentStation = 0;
+    let score = 1000;
+    let timeVal = 3;
+    let bonusVal = 2;
 
-    function startGame() {
-        playerName = document.getElementById("playerName").value || "Deltager";
-        currentIndex = 0;
-        score = 0;
-        correctCount = 0;
-
-        document.getElementById("setupScreen").classList.remove("active-screen");
-        document.getElementById("gameScreen").classList.add("active-screen");
-
-        buildBoard();
-        loadStation();
+    function initGame() {
+        renderStations();
+        loadStationCard();
     }
 
-    function buildBoard() {
-        const track = document.getElementById("boardTrack");
-        track.innerHTML = "";
+    function renderStations() {
+        const grid = document.getElementById("stationsGrid");
+        grid.innerHTML = "";
         stationsData.forEach((st, idx) => {
-            const node = document.createElement("div");
-            node.className = `board-node ${idx === 0 ? 'active' : ''}`;
-            node.id = `node-${idx}`;
-            node.innerHTML = `<span>Station ${idx+1}</span><small>${st.stationName.split(' ')[1] || 'Trin'}</small>`;
-            track.appendChild(node);
+            const card = document.createElement("div");
+            card.className = `station-card ${idx === currentStation ? 'active' : ''} ${idx < currentStation ? 'completed' : ''}`;
+            card.innerHTML = `
+                <div class="num">#${idx + 1}</div>
+                <div class="name">${st.name}</div>
+                <div class="desc">${st.desc}</div>
+                <div class="station-dot"></div>
+            `;
+            grid.appendChild(card);
         });
     }
 
-    function updateBoardUI() {
-        stationsData.forEach((_, idx) => {
-            const node = document.getElementById(`node-${idx}`);
-            node.className = "board-node";
-            if (idx < currentIndex) node.classList.add("completed");
-            if (idx === currentIndex) node.classList.add("active");
-        });
-
-        const activeNode = document.getElementById(`node-${currentIndex}`);
-        if (activeNode) {
-            activeNode.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        }
-    }
-
-    function loadStation() {
-        const st = stationsData[currentIndex];
-        document.getElementById("hudPlayer").innerText = `Spiller: ${playerName}`;
-        document.getElementById("hudStation").innerText = `Station ${currentIndex + 1} af 15`;
-        document.getElementById("hudScore").innerText = `Faglig Kapital: ${score} point`;
-
-        document.getElementById("cardCategory").innerText = st.category;
+    function loadStationCard() {
+        const st = stationsData[currentStation];
+        document.getElementById("cardBadge").innerText = `📜 ${st.cat.toUpperCase()}`;
         document.getElementById("cardTitle").innerText = st.title;
-        document.getElementById("cardQuestion").innerText = st.question;
+        document.getElementById("cardQuestion").innerText = st.q;
 
-        const optionsList = document.getElementById("optionsList");
-        optionsList.innerHTML = "";
+        const optionsGrid = document.getElementById("optionsGrid");
+        optionsGrid.innerHTML = "";
 
-        st.options.forEach((opt, idx) => {
+        const letters = ["A", "B", "C", "D"];
+        st.opts.forEach((optText, idx) => {
             const btn = document.createElement("button");
-            btn.className = "option-btn";
-            btn.innerText = opt;
+            btn.className = "opt-btn";
+            btn.innerHTML = `<span class="opt-letter">${letters[idx]}</span> <span>${optText}</span>`;
             btn.onclick = () => selectOption(idx, btn);
-            optionsList.appendChild(btn);
+            optionsGrid.appendChild(btn);
         });
 
-        document.getElementById("feedbackBox").className = "feedback-box";
-        document.getElementById("feedbackBox").innerText = "";
-        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("feedbackArea").className = "feedback-area";
+        document.getElementById("feedbackArea").innerText = "";
     }
 
-    function selectOption(selectedIdx, btnElement) {
-        const st = stationsData[currentIndex];
-        const buttons = document.querySelectorAll(".option-btn");
-        buttons.forEach(b => b.disabled = true);
+    function selectOption(idx, btnEl) {
+        const st = stationsData[currentStation];
+        const allBtns = document.querySelectorAll(".opt-btn");
+        allBtns.forEach(b => b.disabled = true);
 
-        const feedbackBox = document.getElementById("feedbackBox");
-        
-        if (selectedIdx === st.correct) {
-            btnElement.classList.add("correct");
-            feedbackBox.className = "feedback-box show success";
-            feedbackBox.innerHTML = `<strong>Korrekt!</strong> ${st.explanation}`;
+        const fb = document.getElementById("feedbackArea");
+
+        if (idx === st.correct) {
+            btnEl.classList.add("correct");
+            fb.className = "feedback-area show success";
+            fb.innerHTML = `<strong>Korrekt vurderet!</strong><br>${st.exp}`;
             score += 100;
-            correctCount++;
         } else {
-            btnElement.classList.add("incorrect");
-            buttons[st.correct].classList.add("correct");
-            feedbackBox.className = "feedback-box show error";
-            feedbackBox.innerHTML = `<strong>Ikke helt korrekt.</strong> ${st.explanation}`;
+            btnEl.classList.add("incorrect");
+            allBtns[st.correct].classList.add("correct");
+            fb.className = "feedback-area show error";
+            fb.innerHTML = `<strong>Upræcist juridisk svar.</strong><br>${st.exp}`;
         }
 
-        document.getElementById("hudScore").innerText = `Faglig Kapital: ${score} point`;
-        document.getElementById("nextBtn").style.display = "block";
+        document.getElementById("valCred").innerText = `Ω ${score}`;
     }
 
-    function nextStation() {
-        currentIndex++;
-        if (currentIndex < stationsData.length) {
-            updateBoardUI();
-            loadStation();
+    function rollDice() {
+        if (currentStation < stationsData.length - 1) {
+            currentStation++;
+            document.getElementById("diceNum").innerText = Math.floor(Math.random() * 6) + 1;
+            renderStations();
+            loadStationCard();
+            
+            // Autoscroll
+            const activeCard = document.querySelectorAll(".station-card")[currentStation];
+            if (activeCard) activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
-            showEndScreen();
+            document.getElementById("finalScoreText").innerText = `${score} Point`;
+            document.getElementById("endModal").classList.add("active");
         }
     }
 
-    function showEndScreen() {
-        document.getElementById("gameScreen").classList.remove("active-screen");
-        document.getElementById("endScreen").classList.add("active-screen");
-
-        document.getElementById("finalScore").innerText = score;
-        document.getElementById("finalCorrect").innerText = `${correctCount}/15`;
-        
-        let status = "Lov-Nybegynder";
-        if (correctCount >= 13) status = "Folkeskole-Ekspert";
-        else if (correctCount >= 9) status = "Erfaren Sagsbehandler";
-        
-        document.getElementById("finalStatus").innerText = status;
+    function useBonus() {
+        if (bonusVal > 0) {
+            bonusVal--;
+            document.getElementById("valBonus").innerText = `📜 ${bonusVal}`;
+            const st = stationsData[currentStation];
+            const allBtns = document.querySelectorAll(".opt-btn");
+            
+            for (let i = 0; i < allBtns.length; i++) {
+                if (i !== st.correct && !allBtns[i].disabled) {
+                    allBtns[i].style.opacity = "0.3";
+                    allBtns[i].disabled = true;
+                    break;
+                }
+            }
+        }
     }
 
     function resetGame() {
-        document.getElementById("endScreen").classList.remove("active-screen");
-        document.getElementById("setupScreen").classList.add("active-screen");
+        currentStation = 0;
+        score = 1000;
+        bonusVal = 2;
+        document.getElementById("valBonus").innerText = `📜 ${bonusVal}`;
+        document.getElementById("valCred").innerText = `Ω ${score}`;
+        document.getElementById("endModal").classList.remove("active");
+        initGame();
     }
-</script>
 
-</body>
-</html>
+    window.onload = initGame;
+</script>
