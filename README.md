@@ -1,1 +1,1006 @@
+<!DOCTYPE html>
+<html lang="da" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lov-Navigatoren - Interactive App</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            arctic: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              300: '#5eead4',
+              400: '#2dd4bf',
+              500: '#14b8a6', // Nuuk Teal
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+              950: '#042f2e',
+            },
+            ice: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+            },
+            coral: {
+              400: '#fb7185',
+              500: '#f43f5e',
+              600: '#e11d48',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #14b8a6;
+    }
+    .board-glow {
+      box-shadow: 0 0 25px -5px rgba(20, 184, 166, 0.25);
+    }
+    .pulse-subtle {
+      animation: pulseSubtle 3s infinite ease-in-out;
+    }
+    @keyframes pulseSubtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.95; transform: scale(1.01); }
+    }
+  </style>
+</head>
+<body class="h-full font-sans bg-slate-950 text-slate-100 flex flex-col justify-between overflow-x-hidden selection:bg-arctic-500 selection:text-white">
+
+  <!-- APP CONTAINER -->
+  <div id="app" class="flex flex-col min-h-screen">
+    
+    <!-- TOP HEADER / NAVBAR -->
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40 px-4 lg:px-8 py-3">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="bg-gradient-to-tr from-arctic-600 to-ice-400 p-2.5 rounded-xl shadow-lg text-white font-bold text-xl flex items-center justify-center">
+            <i class="fa-solid me-0 fa-compass"></i>
+          </div>
+          <div>
+            <h1 class="font-extrabold text-lg lg:text-xl tracking-tight text-white flex items-center gap-2">
+              Lov-Navigatoren
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-arctic-500/20 text-arctic-300 border border-arctic-500/30">Grønland</span>
+            </h1>
+            <p class="text-xs text-slate-400 hidden sm:block">Ilinniartitaanermut Aqutsisoqarfik • Folkeskolelovgivningen</p>
+          </div>
+        </div>
+
+        <!-- Right Header Stats / Actions -->
+        <div class="flex items-center gap-3">
+          <button onclick="resetGamePrompt()" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate-right text-slate-400"></i>
+            <span>Nulstil</span>
+          </button>
+          <button onclick="toggleModal('rules-modal')" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-arctic-600 hover:bg-arctic-500 text-white font-medium transition flex items-center gap-1.5 shadow-md shadow-arctic-900/50">
+            <i class="fa-solid fa-book-open"></i>
+            <span class="hidden sm:inline">Regler & Vejledning</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN GAME AREA -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT / TOP SIDEBAR: GAME STATE & CONTROLS (4 Cols) -->
+      <section class="lg:col-span-4 flex flex-col gap-5">
+
+        <!-- SETUP / GAME MODE CARD (When in Setup) -->
+        <div id="setup-card" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+          <div class="flex items-center gap-2 mb-4 text-arctic-400 font-bold uppercase tracking-wider text-xs">
+            <i class="fa-solid fa-sliders"></i> Spilopsætning
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Spiltilstand</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="mode-team-btn" onclick="selectGameMode('team')" class="px-3 py-2 text-xs font-semibold rounded-xl border border-arctic-500 bg-arctic-500/20 text-arctic-300 flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-users"></i> Hold-tilstand
+                </button>
+                <button type="button" id="mode-solo-btn" onclick="selectGameMode('solo')" class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600 flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-user-graduate"></i> Solo / Onboarding
+                </button>
+              </div>
+            </div>
+
+            <!-- Team Setup Options -->
+            <div id="team-count-container">
+              <label class="block text-xs font-medium text-slate-300 mb-1">Antal Hold (2-4)</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button onclick="setTeamCount(2)" id="team-cnt-2" class="py-1.5 rounded-lg border border-arctic-500 bg-arctic-500/20 text-arctic-300 font-bold text-xs">2 Hold</button>
+                <button onclick="setTeamCount(3)" id="team-cnt-3" class="py-1.5 rounded-lg border border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 font-bold text-xs">3 Hold</button>
+                <button onclick="setTeamCount(4)" id="team-cnt-4" class="py-1.5 rounded-lg border border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 font-bold text-xs">4 Hold</button>
+              </div>
+            </div>
+
+            <!-- Team Name Inputs -->
+            <div id="team-names-container" class="space-y-2">
+              <!-- Dynamically populated -->
+            </div>
+
+            <button onclick="startGame()" class="w-full mt-2 py-3 bg-gradient-to-r from-arctic-500 to-ice-500 hover:from-arctic-400 hover:to-ice-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-arctic-900/30 transition flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+              <i class="fa-solid fa-play"></i> Start Spillet
+            </button>
+          </div>
+        </div>
+
+        <!-- ACTIVE DASHBOARD CARD (During Game) -->
+        <div id="active-dashboard" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex-col gap-4">
+          
+          <!-- Current Turn Header -->
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Aktiv Tur</span>
+            <span id="turn-badge" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-arctic-500/20 text-arctic-300 border border-arctic-500/30">
+              Hold 1
+            </span>
+          </div>
+
+          <!-- Current Team Stats -->
+          <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <span id="current-team-name" class="font-extrabold text-lg text-white flex items-center gap-2">
+                <!-- Name -->
+              </span>
+              <span id="current-team-location" class="text-xs text-arctic-400 font-semibold bg-arctic-950/80 px-2 py-1 rounded-md border border-arctic-800">
+                Felt 1: Start
+              </span>
+            </div>
+
+            <!-- Resource Indicators -->
+            <div class="grid grid-cols-3 gap-2 pt-2 text-center">
+              <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                <span class="block text-[10px] uppercase font-bold text-slate-400">Arbejdstid</span>
+                <span id="res-tid" class="text-base font-extrabold text-amber-400 flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-hourglass-half text-xs"></i> 3
+                </span>
+              </div>
+              <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                <span class="block text-[10px] uppercase font-bold text-slate-400">Lov-Bonus</span>
+                <span id="res-faglig" class="text-base font-extrabold text-arctic-400 flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-certificate text-xs"></i> 2
+                </span>
+              </div>
+              <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                <span class="block text-[10px] uppercase font-bold text-slate-400">Kredibilitet</span>
+                <span id="res-kred" class="text-base font-extrabold text-emerald-400 flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-award text-xs"></i> 100
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- DICE / MOVE CONTROLS -->
+          <div class="bg-slate-950/40 p-4 rounded-xl border border-slate-800 text-center space-y-3">
+            <div class="flex items-center justify-center gap-4">
+              <div id="dice-display" class="w-14 h-14 bg-slate-800 border-2 border-arctic-500 rounded-xl flex items-center justify-center text-2xl font-black text-arctic-300 shadow-inner">
+                <i class="fa-solid fa-dice-d6"></i>
+              </div>
+              <div class="text-left">
+                <p class="text-xs text-slate-400">Handling for turen</p>
+                <p id="action-hint" class="text-xs font-bold text-white">Slå med terningen for at rykke frem.</p>
+              </div>
+            </div>
+
+            <button id="roll-dice-btn" onclick="rollDice()" class="w-full py-3 bg-gradient-to-r from-arctic-500 to-ice-500 hover:from-arctic-400 hover:to-ice-400 text-slate-950 font-black rounded-xl shadow-lg transition uppercase tracking-wider text-xs flex items-center justify-center gap-2">
+              <i class="fa-solid fa-dice"></i> Slå Terning
+            </button>
+          </div>
+
+          <!-- ALL TEAMS SCOREBOARD SUMMARY -->
+          <div class="space-y-2 pt-2">
+            <span class="text-xs uppercase font-bold text-slate-400 tracking-wider">Samlet Stilling</span>
+            <div id="scoreboard-list" class="space-y-1.5 text-xs">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- QUICK HELP / TIP BOX -->
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 text-xs text-slate-400 space-y-2">
+          <div class="flex items-center gap-2 text-slate-300 font-bold">
+            <i class="fa-solid fa-lightbulb text-amber-400"></i> Tip til spillet
+          </div>
+          <p>Vidste du, at dyb paragrafindsigt sparer arbejdstid? Svarer I rigtigt på Gule Lov-kort, undgår I bureaukratiske forsinkelser!</p>
+        </div>
+
+      </section>
+
+      <!-- RIGHT / MAIN SECTION: GAME BOARD & INTERACTION (8 Cols) -->
+      <section class="lg:col-span-8 flex flex-col gap-6">
+
+        <!-- GAME BOARD HEADER & TRACK -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-route text-arctic-400"></i>
+              <h2 class="font-extrabold text-base text-white">Kyst-til-Kyst Ruten (10 Stationer)</h2>
+            </div>
+            <span class="text-xs text-slate-400">Fra idé til skolehverdag</span>
+          </div>
+
+          <!-- THE 10-STEP ROUTE TILES GRID -->
+          <div id="board-tiles-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <!-- Tiles dynamically generated with JavaScript -->
+          </div>
+        </div>
+
+        <!-- ACTIVE CARD & QUESTION CONTAINER -->
+        <div id="card-interaction-zone" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl min-h-[380px] flex flex-col justify-center">
+          
+          <!-- Idle / Welcome State -->
+          <div id="card-idle-state" class="text-center py-10 space-y-3">
+            <div class="w-16 h-16 mx-auto bg-slate-800/80 rounded-2xl flex items-center justify-center text-arctic-400 text-2xl border border-slate-700">
+              <i class="fa-solid fa-layer-group"></i>
+            </div>
+            <h3 class="font-bold text-slate-200 text-lg">Klar til at udforske lovgivningen</h3>
+            <p class="text-xs text-slate-400 max-w-md mx-auto">
+              Start spillet og slå med terningen for at rykke frem på Kyst-til-Kyst ruten og trække opgavekort.
+            </p>
+          </div>
+
+          <!-- ACTIVE QUESTION / CASE CARD -->
+          <div id="active-card-container" class="hidden flex-col gap-4">
+            
+            <!-- Card Header Badge -->
+            <div class="flex items-center justify-between">
+              <span id="card-type-badge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <!-- Badge content -->
+              </span>
+              <span id="card-category-tag" class="text-xs text-slate-400 font-medium">
+                <!-- Category -->
+              </span>
+            </div>
+
+            <!-- Card Title & Prompt -->
+            <div class="space-y-2">
+              <h3 id="card-title" class="text-lg font-extrabold text-white">
+                <!-- Title -->
+              </h3>
+              <p id="card-description" class="text-sm text-slate-300 leading-relaxed bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                <!-- Text / Question -->
+              </p>
+            </div>
+
+            <!-- Card Answer Options -->
+            <div id="card-options-container" class="space-y-2 pt-2">
+              <!-- Options populated dynamically -->
+            </div>
+
+            <!-- Card Action / Help Footer -->
+            <div class="flex items-center justify-between pt-2">
+              <button id="use-bonus-btn" onclick="useBonusHint()" class="text-xs px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Brug Lov-Bonus (Fjern 1 forkert svar)
+              </button>
+              <span class="text-[11px] text-slate-500 italic">Vælg et svar for juridisk vurdering</span>
+            </div>
+
+          </div>
+
+          <!-- QUESTION FEEDBACK & JURIDICAL CITATION PANEL -->
+          <div id="feedback-panel" class="hidden flex-col gap-4">
+            <div id="feedback-header" class="p-4 rounded-xl border flex items-start gap-3">
+              <div id="feedback-icon" class="text-2xl mt-0.5"></div>
+              <div>
+                <h4 id="feedback-title" class="font-extrabold text-base"></h4>
+                <p id="feedback-subtitle" class="text-xs mt-0.5 opacity-90"></p>
+              </div>
+            </div>
+
+            <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-xl space-y-2">
+              <div class="flex items-center gap-2 text-arctic-400 font-bold text-xs uppercase tracking-wider">
+                <i class="fa-solid fa-scale-balanced"></i> Juridisk Begrundelse & Lovhjemmel
+              </div>
+              <p id="feedback-legal-text" class="text-xs text-slate-300 leading-relaxed">
+                <!-- Citation -->
+              </p>
+            </div>
+
+            <button onclick="nextTurn()" class="w-full py-3 bg-arctic-600 hover:bg-arctic-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-lg">
+              Videre til Næste Tur <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 px-4 text-center text-xs text-slate-500">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p>Ilinniartitaanermut Aqutsisoqarfik • Uddannelsesstyrelsen Grønland</p>
+        <p class="text-slate-600">Lov-Navigatoren v2.0 • Baseret på Inatsisartutlov nr. 15 af 3. dec. 2012</p>
+      </div>
+    </footer>
+
+    <!-- RULES & GUIDANCE MODAL -->
+    <div id="rules-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+          <h3 class="font-bold text-lg text-white flex items-center gap-2">
+            <i class="fa-solid fa-book-open text-arctic-400"></i> Spilleregler & Vejledning
+          </h3>
+          <button onclick="toggleModal('rules-modal')" class="text-slate-400 hover:text-white text-lg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="p-6 overflow-y-auto space-y-4 text-xs text-slate-300 leading-relaxed">
+          <h4 class="font-bold text-sm text-arctic-300">Spillets Formål</h4>
+          <p>
+            At opbygge dyb faglig og juridisk viden om folkeskolelovgivningen i Grønland. Jo bedre kendskab dit team har til loven, desto hurtigere kan I navigere sager uden tab af arbejdstid og kredibilitet.
+          </p>
+
+          <h4 class="font-bold text-sm text-arctic-300">Ressourcesystemet</h4>
+          <ul class="list-disc pl-5 space-y-1">
+            <li><strong class="text-amber-400">Arbejdstid (Tid):</strong> Brugs ved fejl i hasteopgaver. Mister et hold al tid, må de sidde over 1 tur.</li>
+            <li><strong class="text-arctic-400">Lov-Bonus:</strong> Kan bruges undervejs til at fjerne et forkert svarmulighed ved svære lovspørgsmål.</li>
+            <li><strong class="text-emerald-400">Kredibilitet:</strong> Svarer I rigtigt på komplekse cases, stiger holdets faglige anseelse.</li>
+          </ul>
+
+          <h4 class="font-bold text-sm text-arctic-300">De 4 Korttyper</h4>
+          <ul class="list-disc pl-5 space-y-1">
+            <li><strong class="text-amber-300">📜 Lov-Kort (Gul):</strong> Konkrete juridiske spørgsmål om Inatsisartutloven.</li>
+            <li><strong class="text-ice-300">💼 Case-Kort (Blå):</strong> Virksomhedsnære dilemmaer fra styrelsens hverdag.</li>
+            <li><strong class="text-coral-400">⚡ Haste-Kort (Rød):</strong> Akutte § 37-spørgsmål eller pressesager.</li>
+            <li><strong class="text-emerald-300">🤝 Onboarding-Kort (Grøn):</strong> Ekstra ressourcer og sparringsmuligheder.</li>
+          </ul>
+        </div>
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50 flex justify-end">
+          <button onclick="toggleModal('rules-modal')" class="px-4 py-2 bg-arctic-600 hover:bg-arctic-500 text-white font-bold rounded-xl text-xs">
+            Forstået & Luk
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- END GAME / REPORT MODAL -->
+    <div id="endgame-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl text-center">
+        <div class="w-16 h-16 mx-auto bg-gradient-to-tr from-amber-400 to-arctic-400 rounded-full flex items-center justify-center text-slate-950 text-3xl font-black shadow-lg">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-black text-white">Spillet er Gennemført!</h2>
+          <p id="winner-announcement" class="text-sm text-arctic-300 font-bold mt-1">
+            <!-- Winner text -->
+          </p>
+        </div>
+
+        <!-- Summary Stats Grid -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3 text-left">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">Kompetencerapport</h4>
+          <div id="final-report-content" class="space-y-2 text-xs text-slate-300">
+            <!-- Dynamically populated report -->
+          </div>
+        </div>
+
+        <button onclick="resetGame()" class="w-full py-3 bg-gradient-to-r from-arctic-500 to-ice-500 hover:from-arctic-400 hover:to-ice-400 text-slate-950 font-black rounded-xl transition text-xs uppercase tracking-wider shadow-lg">
+          <i class="fa-solid fa-rotate-right"></i> Start Nyt Spil
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- APP SCRIPT LOGIC -->
+  <script>
+    /* ==========================================================================
+       1. GAME DATA: STATIONS, CARDS & QUESTIONS
+       ========================================================================== */
+
+    const STATIONS = [
+      { id: 1, name: "1. Start", icon: "fa-flag-checkered", type: "start", desc: "Nye Mål & Strategier" },
+      { id: 2, name: "2. Siammaavik", icon: "fa-bullhorn", type: "case", desc: "Information & Rådgivning" },
+      { id: 3, name: "3. Paragraf 2", icon: "fa-gavel", type: "lov", desc: "Folkeskolens Formål" },
+      { id: 4, name: "4. Onboarding", icon: "fa-user-plus", type: "onboarding", desc: "Introduktion & Lovguide" },
+      { id: 5, name: "5. Silo-Udfordring", icon: "fa-handshake", type: "case", desc: "Tværgående Vidensdeling" },
+      { id: 6, name: "6. Ilinniusiorfik", icon: "fa-book-bookmark", type: "case", desc: "Læremidler & Godkendelse" },
+      { id: 7, name: "7. Sproglige Rammer", icon: "fa-language", type: "lov", desc: "Undervisningssprog (§ 3)" },
+      { id: 8, name: "8. Data & Test", icon: "fa-chart-column", type: "lov", desc: "Afgangsprøver & Tilsyn" },
+      { id: 9, name: "9. § 37-Hasteopgave", icon: "fa-bolt", type: "haste", desc: "Politisk Hasteforespørgsel" },
+      { id: 10, name: "10. Mål: Folkeskolen", icon: "fa-graduation-cap", type: "goal", desc: "Vellykket Udmøntning" }
+    ];
+
+    const CARDS = {
+      lov: [
+        {
+          id: "L1",
+          title: "Folkeskolens Formål og Værdigrundlag (§ 2)",
+          category: "Formål & Kompetencefordeling",
+          question: "En kommune ønsker at etablere en lokal forsøgsordning, hvor undervisningen på 8.-10. klassetrin tilrettelægges udelukkende med henblik på erhvervsrettet kvalificering og uden de obligatoriske faglige krav i læreplanerne. Hvilken juridisk ramme gør sig gældende?",
+          options: [
+            "Kommunen har ifølge det kommunale selvstyre fuld ret til at ændre fagsammensætningen, så længe skolebestyrelsen godkender det.",
+            "Folkeskolen skal give en undervisning med almendannende karakter. Fravigelse af de obligatoriske læreplaner kræver udtrykkelig godkendelse/dispensation fra Naalakkersuisut efter indstilling.",
+            "Styrelsen kan på eget initiativ udstede en administrativ forskrift, der fritager kommunen fra lovens formålsbestemmelse.",
+            "Forsøgsordninger er udelukkende reguleret af den enkelte skoles vedtægter og falder helt uden for lovens rækkevidde."
+          ],
+          correct: 1,
+          citation: "Inatsisartutlov nr. 15 af 3. december 2012 om folkeskolen, § 2. Fravigelse fra læreplaner og forsøgsordninger af væsentlig rækkevidde kræver godkendelse fra Naalakkersuisut for at sikre uddannelseskvalitet."
+        },
+        {
+          id: "L2",
+          title: "Undervisningssprog og andetsprog (§ 3)",
+          category: "Sprogforhold",
+          question: "En forældregruppe klager til styrelsen over, at deres børns skole først tilbyder dansk undervisning fra 3. klasse i stedet for 1. klasse. Hvordan er retsstillingen?",
+          options: [
+            "Skolen er i sin fulde ret til selv at beslutte opstartstidspunktet for dansk.",
+            "Loven fastslår, at grønlandsk er undervisningssproget, men at undervisning i dansk skal påbegyndes på det yngste klassetrin (1. klasse). Styrelsen må gøre kommunen opmærksom på lovbruddet.",
+            "Styrelsen kan straks pålægge den enkelte lærer en tjenestelig advarsel.",
+            "Danskundervisningens starttidspunkt afgøres suverænt af Naalakkersuisut fra år til år."
+          ],
+          correct: 1,
+          citation: "Inatsisartutlov nr. 15, § 3, stk. 2. Danskundervisningen skal påbegyndes i 1. klasse. Kommunen er forpligtet til at stille det fornødne undervisningstilbud til rådighed."
+        },
+        {
+          id: "L3",
+          title: "Specialundervisning og Visitation (§ 19)",
+          category: "Specialpædagogik",
+          question: "En folkeskole ønsker at overflytte en elev permanent til et specialundervisningstilbud uden om kommunens PPR og uden forældrenes samtykke. Hvad gælder?",
+          options: [
+            "Skolelederen har som øverste pædagogiske leder den fulde administrative ret til at træffe afgørelsen alene.",
+            "Afgørelse om henvisning til specialundervisning kræver altid en pædagogisk-psykologisk vurdering (PPR) samt overholdelse af forvaltningslovens regler om partshøring og klagevejledning.",
+            "Ilinniartitaanermut Aqutsisoqarfik træffer altid den primære visitationsofgørelse for alle enkeltelever.",
+            "Specialundervisning kan kun bevilges, hvis forældrene dækker 50 % af udgifterne."
+          ],
+          correct: 1,
+          citation: "Inatsisartutlov nr. 15, § 19 samt forvaltningslovens regler om sagsoplysning. Visitation kræver faglig PPR-udredning samt formel partshøring af forældremyndighedsindehavere."
+        }
+      ],
+
+      case: [
+        {
+          id: "C1",
+          title: "Uenighed om udredning og visitationsansvar",
+          category: "Myndighedsrolle",
+          question: "En kommune oplyser, at deres PPR har lang ventetid, og de kræver, at styrelsens specialpædagogiske konsulenter overtager udredningen af 15 elever i bygdeskolerne. Hvordan reagerer I?",
+          options: [
+            "I accepterer straks opgaven for at undgå negativ omtale.",
+            "I afviser kontant kommunen med henvisning til, at PPR er 100 % kommunalt anliggende uden yderligere dialog.",
+            "I præciserer i et skriftligt svar ansvarsfordelingen: Den konkrete udredning og visitation påhviler kommunen, men styrelsen tilbyder faglig sparring, rådgivning om testværktøjer samt kompetenceudviklingsrammer."
+          ],
+          correct: 2,
+          citation: "Serviceloven og Folkeskoleloven fastlægger den kommunale forpligtelse til PPR-udredning, mens styrelsen varetager overordnet tilsyn og faglig vejledning."
+        },
+        {
+          id: "C2",
+          title: "Tværgående uenighed om afgangsprøver",
+          category: "Silonedbrydning",
+          question: "Under et kaffemøde opdager I, at de nye digitale prøveformer fra Dataafdelingen ikke tager højde for fagkonsulenternes reviderede fagmål for mundtlig grønlandsk. Hvad gør I?",
+          options: [
+            "I lader begge projekter køre færdigt og satser på, at skolerne selv tilpasser sig.",
+            "I rejser problemet på det tværgående fagmøde, etablerer en fælles arbejdsgruppe og samordner tidsplanen.",
+            "I indgiver en formel klage til hovedledelsen over det andet teams manglende orientering."
+          ],
+          correct: 1,
+          citation: "Intern god forvaltningsskik og tværgående vidensdeling hindrer dobbeltarbejde og forvirring i skolerne."
+        }
+      ],
+
+      haste: [
+        {
+          id: "H1",
+          title: "§ 37-spørgsmål om inklusion",
+          category: "Politisk Betjening",
+          question: "Fredag kl. 15:00 modtages et akut § 37-spørgsmål om antallet af klager over manglende specialundervisningsstøtte. Svarfrist mandag kl. 09:00. Hvilket princip anvendes?",
+          options: [
+            "I gætter på et tal for at overholde deadlinen uden at tjekke datagrundlaget.",
+            "I præciserer, at styrelsen oplyser om afgjorte tilsynssager og overordnede dataindsamlinger, men at registrering af kommunale enkeltafgørelser ligger hos de enkelte kommuner.",
+            "I afviser at besvare spørgsmålet med henvisning til weekendlukket."
+          ],
+          correct: 1,
+          citation: "Ved politisk betjening skal der gives et retvisende og forvaltningsmæssigt præcist billede af, hvad styrelsen har registreringer på i sine tilsynsarkiver."
+        }
+      ],
+
+      onboarding: [
+        {
+          id: "O1",
+          title: "Struktureret Buddy-ordning",
+          category: "Kompetenceudvikling",
+          question: "En nyansat konsulent står over for sin første svære rådgivningssag over for en skoleleder. Hvordan anvendes onboarding-konceptet bedst?",
+          options: [
+            "Den nyansatte overlades til sig selv for at lære af sine egne fejl.",
+            "Den nyansatte gennemfører rådgivningen sammen med sin udpegede 'Buddy' eller mentor, hvor lovgrundlaget gennemgås på forhånd.",
+            "Sagen udskydes på ubestemt tid til næste år."
+          ],
+          correct: 1,
+          citation: "Anbefalingerne i selvevalueringsrapporten understreger afdelingsspecifik onboarding med fast sparring."
+        }
+      ]
+    };
+
+    /* ==========================================================================
+       2. GAME STATE MANAGEMENT
+       ========================================================================== */
+
+    let gameState = {
+      mode: 'team', // 'team' or 'solo'
+      teamCount: 2,
+      teams: [],
+      activeTeamIndex: 0,
+      currentCard: null,
+      bonusHintUsed: false,
+      gameActive: false,
+      answeredCount: 0
+    };
+
+    const TEAM_COLORS = [
+      { name: "Teal Hold", bg: "bg-arctic-500", text: "text-arctic-300", border: "border-arctic-500" },
+      { name: "Isblå Hold", bg: "bg-ice-500", text: "text-ice-300", border: "border-ice-500" },
+      { name: "Korall Hold", bg: "bg-coral-500", text: "text-coral-400", border: "border-coral-500" },
+      { name: "Guld Hold", bg: "bg-amber-500", text: "text-amber-300", border: "border-amber-500" }
+    ];
+
+    /* ==========================================================================
+       3. INITIALIZATION & SETUP FUNCTIONS
+       ========================================================================== */
+
+    window.onload = function() {
+      renderSetupInputs();
+      renderBoardTiles();
+    };
+
+    function selectGameMode(mode) {
+      gameState.mode = mode;
+      const teamBtn = document.getElementById('mode-team-btn');
+      const soloBtn = document.getElementById('mode-solo-btn');
+      const teamCntContainer = document.getElementById('team-count-container');
+
+      if (mode === 'solo') {
+        teamBtn.className = "px-3 py-2 text-xs font-semibold rounded-xl border border-slate-700 bg-slate-800 text-slate-400 flex items-center justify-center gap-2";
+        soloBtn.className = "px-3 py-2 text-xs font-semibold rounded-xl border border-arctic-500 bg-arctic-500/20 text-arctic-300 flex items-center justify-center gap-2";
+        teamCntContainer.classList.add('hidden');
+        gameState.teamCount = 1;
+      } else {
+        soloBtn.className = "px-3 py-2 text-xs font-semibold rounded-xl border border-slate-700 bg-slate-800 text-slate-400 flex items-center justify-center gap-2";
+        teamBtn.className = "px-3 py-2 text-xs font-semibold rounded-xl border border-arctic-500 bg-arctic-500/20 text-arctic-300 flex items-center justify-center gap-2";
+        teamCntContainer.classList.remove('hidden');
+        if (gameState.teamCount === 1) gameState.teamCount = 2;
+      }
+      renderSetupInputs();
+    }
+
+    function setTeamCount(count) {
+      gameState.teamCount = count;
+      [2, 3, 4].forEach(n => {
+        const btn = document.getElementById(`team-cnt-${n}`);
+        if (n === count) {
+          btn.className = "py-1.5 rounded-lg border border-arctic-500 bg-arctic-500/20 text-arctic-300 font-bold text-xs";
+        } else {
+          btn.className = "py-1.5 rounded-lg border border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 font-bold text-xs";
+        }
+      });
+      renderSetupInputs();
+    }
+
+    function renderSetupInputs() {
+      const container = document.getElementById('team-names-container');
+      container.innerHTML = '';
+
+      const count = gameState.mode === 'solo' ? 1 : gameState.teamCount;
+      for (let i = 0; i < count; i++) {
+        const defaultName = gameState.mode === 'solo' ? 'Onboarding Konsulent' : `Hold ${i + 1}`;
+        container.innerHTML += `
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-0.5">${gameState.mode === 'solo' ? 'Spiller Navn' : `Hold ${i + 1} Navn`}</label>
+            <input type="text" id="team-name-input-${i}" value="${defaultName}" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-arctic-500">
+          </div>
+        `;
+      }
+    }
+
+    function startGame() {
+      const count = gameState.mode === 'solo' ? 1 : gameState.teamCount;
+      gameState.teams = [];
+
+      for (let i = 0; i < count; i++) {
+        const input = document.getElementById(`team-name-input-${i}`);
+        const name = input ? input.value.trim() : `Hold ${i + 1}`;
+        gameState.teams.push({
+          id: i,
+          name: name || `Hold ${i + 1}`,
+          color: TEAM_COLORS[i],
+          station: 1, // Start at station 1
+          tid: 3,
+          faglig: 2,
+          kredibilitet: 100,
+          correctAnswers: 0
+        });
+      }
+
+      gameState.activeTeamIndex = 0;
+      gameState.gameActive = true;
+
+      // Toggle UI Panels
+      document.getElementById('setup-card').classList.add('hidden');
+      document.getElementById('active-dashboard').classList.remove('hidden');
+      document.getElementById('active-dashboard').classList.add('flex');
+
+      updateDashboard();
+      renderBoardTiles();
+      updateScoreboard();
+    }
+
+    /* ==========================================================================
+       4. BOARD RENDERING & GAME MECHANICS
+       ========================================================================== */
+
+    function renderBoardTiles() {
+      const grid = document.getElementById('board-tiles-grid');
+      grid.innerHTML = '';
+
+      STATIONS.forEach(st => {
+        // Find pawns on this station
+        let pawnsHTML = '';
+        if (gameState.gameActive) {
+          gameState.teams.forEach((t) => {
+            if (t.station === st.id) {
+              pawnsHTML += `
+                <span class="w-3 h-3 rounded-full ${t.color.bg} ring-2 ring-slate-900 inline-block shadow-md" title="${t.name}"></span>
+              `;
+            }
+          });
+        }
+
+        let borderStyle = "border-slate-800 bg-slate-950/60";
+        if (st.type === 'start') borderStyle = "border-arctic-500/40 bg-arctic-950/20";
+        if (st.type === 'goal') borderStyle = "border-amber-500/40 bg-amber-950/20";
+        if (st.type === 'haste') borderStyle = "border-coral-500/40 bg-coral-950/20";
+
+        grid.innerHTML += `
+          <div class="p-3 rounded-xl border ${borderStyle} flex flex-col justify-between min-h-[95px] relative group hover:border-slate-700 transition">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <i class="fa-solid ${st.icon} text-slate-400 text-xs group-hover:text-arctic-400 transition"></i>
+                <span class="text-[10px] text-slate-500 font-bold">#${st.id}</span>
+              </div>
+              <h4 class="font-extrabold text-xs text-white leading-tight">${st.name}</h4>
+              <p class="text-[10px] text-slate-400 mt-0.5">${st.desc}</p>
+            </div>
+
+            <!-- Team Pawns Layer -->
+            <div class="flex items-center gap-1 mt-2 min-h-[12px]">
+              ${pawnsHTML}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function updateDashboard() {
+      const team = gameState.teams[gameState.activeTeamIndex];
+      const station = STATIONS.find(s => s.id === team.station);
+
+      document.getElementById('turn-badge').innerText = team.name;
+      document.getElementById('turn-badge').className = `px-2.5 py-0.5 rounded-full text-xs font-extrabold ${team.color.bg} text-slate-950`;
+
+      document.getElementById('current-team-name').innerText = team.name;
+      document.getElementById('current-team-location').innerText = `${station.name}`;
+
+      document.getElementById('res-tid').innerHTML = `<i class="fa-solid fa-hourglass-half text-xs"></i> ${team.tid}`;
+      document.getElementById('res-faglig').innerHTML = `<i class="fa-solid fa-certificate text-xs"></i> ${team.faglig}`;
+      document.getElementById('res-kred').innerHTML = `<i class="fa-solid fa-award text-xs"></i> ${team.kredibilitet}`;
+
+      document.getElementById('roll-dice-btn').disabled = false;
+      document.getElementById('action-hint').innerText = "Slå med terningen for at rykke frem.";
+    }
+
+    function updateScoreboard() {
+      const list = document.getElementById('scoreboard-list');
+      list.innerHTML = '';
+
+      gameState.teams.forEach((t) => {
+        list.innerHTML += `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-950/80 border border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full ${t.color.bg}"></span>
+              <span class="font-bold text-slate-200">${t.name}</span>
+            </div>
+            <div class="flex items-center gap-3 text-[11px] text-slate-400">
+              <span>Pos: <strong class="text-white">#${t.station}</strong></span>
+              <span>Kred: <strong class="text-emerald-400">${t.kredibilitet}</strong></span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    /* ==========================================================================
+       5. DICE & CARD DRAW LOGIC
+       ========================================================================== */
+
+    function rollDice() {
+      const btn = document.getElementById('roll-dice-btn');
+      btn.disabled = true;
+
+      const diceDisplay = document.getElementById('dice-display');
+      let rollCount = 0;
+
+      const interval = setInterval(() => {
+        const tempVal = Math.floor(Math.random() * 3) + 1; // Roll 1, 2, or 3 for steady board pace
+        diceDisplay.innerHTML = `<span class="animate-pulse">${tempVal}</span>`;
+        rollCount++;
+
+        if (rollCount > 8) {
+          clearInterval(interval);
+          const finalRoll = Math.floor(Math.random() * 3) + 1;
+          diceDisplay.innerHTML = `<span>${finalRoll}</span>`;
+
+          moveActiveTeam(finalRoll);
+        }
+      }, 70);
+    }
+
+    function moveActiveTeam(steps) {
+      const team = gameState.teams[gameState.activeTeamIndex];
+      team.station = Math.min(team.station + steps, 10);
+
+      renderBoardTiles();
+      updateDashboard();
+      updateScoreboard();
+
+      if (team.station === 10) {
+        triggerEndGame(team);
+        return;
+      }
+
+      // Draw Card based on new station type
+      drawCardForStation(team.station);
+    }
+
+    function drawCardForStation(stationId) {
+      const station = STATIONS.find(s => s.id === stationId);
+      let cardPool = CARDS.lov;
+
+      if (station.type === 'haste') cardPool = CARDS.haste;
+      else if (station.type === 'case') cardPool = CARDS.case;
+      else if (station.type === 'onboarding') cardPool = CARDS.onboarding;
+
+      // Pick random card from pool
+      const card = cardPool[Math.floor(Math.random() * cardPool.length)];
+      gameState.currentCard = card;
+      gameState.bonusHintUsed = false;
+
+      renderCardUI(card, station.type);
+    }
+
+    function renderCardUI(card, type) {
+      document.getElementById('card-idle-state').classList.add('hidden');
+      document.getElementById('feedback-panel').classList.add('hidden');
+      document.getElementById('active-card-container').classList.remove('hidden');
+
+      const typeBadge = document.getElementById('card-type-badge');
+      if (type === 'haste') {
+        typeBadge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 bg-coral-500/20 text-coral-400 border border-coral-500/30";
+        typeBadge.innerHTML = `<i class="fa-solid fa-bolt"></i> ⚡ § 37-Hastekort`;
+      } else if (type === 'case') {
+        typeBadge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 bg-ice-500/20 text-ice-300 border border-ice-500/30";
+        typeBadge.innerHTML = `<i class="fa-solid fa-briefcase"></i> 💼 Case-kort`;
+      } else if (type === 'onboarding') {
+        typeBadge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+        typeBadge.innerHTML = `<i class="fa-solid fa-user-plus"></i> 🤝 Onboarding-kort`;
+      } else {
+        typeBadge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/30";
+        typeBadge.innerHTML = `<i class="fa-solid fa-gavel"></i> 📜 Paragraf-kort`;
+      }
+
+      document.getElementById('card-category-tag').innerText = card.category;
+      document.getElementById('card-title').innerText = card.title;
+      document.getElementById('card-description').innerText = card.question;
+
+      const optsContainer = document.getElementById('card-options-container');
+      optsContainer.innerHTML = '';
+
+      card.options.forEach((opt, idx) => {
+        optsContainer.innerHTML += `
+          <button id="opt-btn-${idx}" onclick="submitAnswer(${idx})" class="w-full text-left p-3.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-arctic-500/50 text-xs text-slate-200 transition flex items-start gap-3 group">
+            <span class="w-5 h-5 rounded-md bg-slate-800 group-hover:bg-arctic-500 group-hover:text-slate-950 text-slate-400 font-bold flex items-center justify-center text-[10px] shrink-0 transition">
+              ${String.fromCharCode(65 + idx)}
+            </span>
+            <span class="leading-relaxed">${opt}</span>
+          </button>
+        `;
+      });
+
+      // Bonus Button Status
+      const team = gameState.teams[gameState.activeTeamIndex];
+      const bonusBtn = document.getElementById('use-bonus-btn');
+      if (team.faglig > 0) {
+        bonusBtn.disabled = false;
+        bonusBtn.className = "text-xs px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold transition flex items-center gap-1.5";
+      } else {
+        bonusBtn.disabled = true;
+        bonusBtn.className = "text-xs px-3 py-1.5 rounded-lg bg-slate-800 text-slate-500 border border-slate-700 font-semibold flex items-center gap-1.5 cursor-not-allowed";
+      }
+    }
+
+    function useBonusHint() {
+      const team = gameState.teams[gameState.activeTeamIndex];
+      if (team.faglig <= 0 || gameState.bonusHintUsed) return;
+
+      team.faglig--;
+      gameState.bonusHintUsed = true;
+      updateDashboard();
+
+      // Find an incorrect option to eliminate
+      const card = gameState.currentCard;
+      const incorrectIndices = [];
+      card.options.forEach((_, idx) => {
+        if (idx !== card.correct) incorrectIndices.push(idx);
+      });
+
+      const removeIdx = incorrectIndices[Math.floor(Math.random() * incorrectIndices.length)];
+      const btn = document.getElementById(`opt-btn-${removeIdx}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.className = "w-full text-left p-3.5 rounded-xl bg-slate-950/30 border border-slate-900 text-xs text-slate-600 line-through cursor-not-allowed opacity-50";
+      }
+
+      document.getElementById('use-bonus-btn').disabled = true;
+    }
+
+    /* ==========================================================================
+       6. ANSWER EVALUATION & FEEDBACK
+       ========================================================================== */
+
+    function submitAnswer(chosenIdx) {
+      const card = gameState.currentCard;
+      const isCorrect = chosenIdx === card.correct;
+      const team = gameState.teams[gameState.activeTeamIndex];
+
+      gameState.answeredCount++;
+
+      if (isCorrect) {
+        team.kredibilitet += 15;
+        team.faglig += 1;
+        team.correctAnswers++;
+      } else {
+        team.kredibilitet = Math.max(0, team.kredibilitet - 10);
+        team.tid = Math.max(0, team.tid - 1);
+      }
+
+      updateDashboard();
+      updateScoreboard();
+
+      // Show Feedback Panel
+      document.getElementById('active-card-container').classList.add('hidden');
+      const fbPanel = document.getElementById('feedback-panel');
+      fbPanel.classList.remove('hidden');
+      fbPanel.classList.add('flex');
+
+      const header = document.getElementById('feedback-header');
+      const icon = document.getElementById('feedback-icon');
+      const title = document.getElementById('feedback-title');
+      const subtitle = document.getElementById('feedback-subtitle');
+
+      if (isCorrect) {
+        header.className = "p-4 rounded-xl border border-emerald-500/30 bg-emerald-950/20 text-emerald-300 flex items-start gap-3";
+        icon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+        title.innerText = "Korrekt Lovforståelse!";
+        subtitle.innerText = "I traf den forvaltningsmæssigt og juridisk korrekte beslutning. +15 Kredibilitet.";
+      } else {
+        header.className = "p-4 rounded-xl border border-coral-500/30 bg-coral-950/20 text-coral-300 flex items-start gap-3";
+        icon.innerHTML = `<i class="fa-solid fa-circle-xmark text-coral-400"></i>`;
+        title.innerText = "Forkert / Upræcis Håndtering";
+        subtitle.innerText = "Svaret strider mod praksis eller lovgrundlag. -10 Kredibilitet, -1 Arbejdstid.";
+      }
+
+      document.getElementById('feedback-legal-text').innerText = card.citation;
+    }
+
+    function nextTurn() {
+      document.getElementById('feedback-panel').classList.add('hidden');
+      document.getElementById('card-idle-state').classList.remove('hidden');
+
+      // Next Team Turn
+      gameState.activeTeamIndex = (gameState.activeTeamIndex + 1) % gameState.teams.length;
+      updateDashboard();
+    }
+
+    /* ==========================================================================
+       7. END GAME & MODALS
+       ========================================================================== */
+
+    function triggerEndGame(winningTeam) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      document.getElementById('winner-announcement').innerText = `${winningTeam.name} har fuldført Kyst-til-Kyst ruten og udmøntet loven i folkeskolen!`;
+
+      const report = document.getElementById('final-report-content');
+      report.innerHTML = '';
+
+      gameState.teams.forEach(t => {
+        report.innerHTML += `
+          <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between font-bold text-white">
+              <span>${t.name}</span>
+              <span class="text-arctic-400">Slutplacering: #${t.station}</span>
+            </div>
+            <div class="flex items-center gap-4 text-slate-400">
+              <span>Kredibilitet: <strong class="text-emerald-400">${t.kredibilitet}</strong></span>
+              <span>Korrekt besvaret: <strong class="text-white">${t.correctAnswers} opgaver</strong></span>
+            </div>
+          </div>
+        `;
+      });
+
+      toggleModal('endgame-modal');
+    }
+
+    function toggleModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal.classList.contains('hidden')) {
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function resetGamePrompt() {
+      if (confirm("Vil du nulstille spillet og starte forfra?")) {
+        resetGame();
+      }
+    }
+
+    function resetGame() {
+      document.getElementById('endgame-modal').classList.add('hidden');
+      document.getElementById('active-dashboard').classList.add('hidden');
+      document.getElementById('active-dashboard').classList.remove('flex');
+      document.getElementById('setup-card').classList.remove('hidden');
+
+      document.getElementById('card-idle-state').classList.remove('hidden');
+      document.getElementById('active-card-container').classList.add('hidden');
+      document.getElementById('feedback-panel').classList.add('hidden');
+
+      gameState.gameActive = false;
+      renderBoardTiles();
+    }
+  </script>
+</body>
+</html>
